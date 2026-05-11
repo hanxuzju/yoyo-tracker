@@ -375,6 +375,29 @@
       font-size: 0.75rem;
       border-radius: 6px;
     }
+    .member-stat-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .member-stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      align-items: center;
+    }
+    .member-stat-row:last-child { border-bottom: none; }
+    .member-stat-row .name { font-weight: 500; }
+    .member-stat-row .num { text-align: center; font-weight: 600; color: var(--primary); }
     .balance-bar {
       background: linear-gradient(135deg, var(--success) 0%, #4CD97B 100%);
       color: #fff;
@@ -942,6 +965,18 @@
     <div class="list-item flex-between danger-zone" onclick="resetData()">
       <span>重置所有数据</span>
       <span>&#8250;</span>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-header">
+      <span class="card-title">家庭成员统计</span>
+    </div>
+    <div class="card-body" id="member-stats-body" style="padding: 0;">
+      <div class="member-stat-header">
+        <span>成员</span>
+        <span style="text-align:center;">标记完成</span>
+        <span style="text-align:center;">兑换积分</span>
+      </div>
     </div>
   </div>
 </div>
@@ -2463,6 +2498,34 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, 
 }
 
 // ===================== PROFILE =====================
+function calculateMemberStats() {
+  const completedCounts = {};
+  const redemptionPoints = {};
+
+  // Count completed task marks by lastEditor
+  for (const dateStr in state.records) {
+    const dayRec = state.records[dateStr];
+    for (const taskId in dayRec) {
+      if (dayRec[taskId].completed) {
+        const editor = dayRec[taskId].lastEditor;
+        if (editor) {
+          completedCounts[editor] = (completedCounts[editor] || 0) + 1;
+        }
+      }
+    }
+  }
+
+  // Sum redemption points by createdBy
+  state.redemptions.forEach(r => {
+    const creator = r.createdBy;
+    if (creator) {
+      redemptionPoints[creator] = (redemptionPoints[creator] || 0) + (parseInt(r.points) || 0);
+    }
+  });
+
+  return { completedCounts, redemptionPoints };
+}
+
 function renderProfile() {
   const role = getRoleById(state.currentRole);
   document.getElementById('profile-role-name').textContent = `${role.name} · ${role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员'}`;
@@ -2470,6 +2533,28 @@ function renderProfile() {
   const resetCard = document.getElementById('profile-reset-card');
   if (switchRow) switchRow.style.display = isAdmin() ? 'flex' : 'none';
   if (resetCard) resetCard.style.display = isAdmin() ? 'block' : 'none';
+
+  // Render member stats
+  const statsBody = document.getElementById('member-stats-body');
+  if (!statsBody) return;
+  const { completedCounts, redemptionPoints } = calculateMemberStats();
+  let html = `
+    <div class="member-stat-header">
+      <span>成员</span>
+      <span style="text-align:center;">累计标记(条)</span>
+      <span style="text-align:center;">兑换积分(分)</span>
+    </div>`;
+  ROLES.forEach(r => {
+    const count = completedCounts[r.name] || 0;
+    const points = redemptionPoints[r.name] || 0;
+    html += `
+      <div class="member-stat-row">
+        <span class="name">${r.avatar} ${r.name}</span>
+        <span class="num">${count}</span>
+        <span class="num">${points}</span>
+      </div>`;
+  });
+  statsBody.innerHTML = html;
 }
 
 function resetData() {
