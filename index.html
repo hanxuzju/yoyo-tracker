@@ -2529,9 +2529,7 @@ function calculateMemberStats() {
 function renderProfile() {
   const role = getRoleById(state.currentRole);
   document.getElementById('profile-role-name').textContent = `${role.name} · ${role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员'}`;
-  const switchRow = document.getElementById('profile-switch-row');
   const resetCard = document.getElementById('profile-reset-card');
-  if (switchRow) switchRow.style.display = isAdmin() ? 'flex' : 'none';
   if (resetCard) resetCard.style.display = isAdmin() ? 'block' : 'none';
 
   // Render member stats
