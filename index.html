@@ -57,7 +57,7 @@
       border-radius: 50%;
     }
     .app-header h1 { font-size: 1.25rem; font-weight: 600; }
-    .app-header .sub { font-size: 0.8125rem; opacity: 0.85; margin-top: 4px; }
+    .app-header .sub { font-size: 0.8125rem; opacity: 0.85; margin-top: 4px; min-height: 1.25rem; }
 
     /* Role selector */
     .role-grid {
@@ -251,6 +251,15 @@
       color: var(--primary);
       margin-left: 10px;
       flex-shrink: 0;
+    }
+    .task-validity-tag {
+      font-size: 0.625rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #E8F0FE;
+      color: var(--primary);
+      margin-left: 6px;
+      font-weight: 500;
     }
 
     /* Bottom nav */
@@ -511,44 +520,155 @@
     .text-light { color: var(--text-light); }
     .font-bold { font-weight: 600; }
 
-    /* Welcome banner */
-    .welcome-banner {
-      background: linear-gradient(135deg, #FFF9DB 0%, #FFF3CD 100%);
-      border-left: 4px solid var(--secondary);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin: 0 16px 16px;
-      display: none;
-      align-items: flex-start;
-      gap: 10px;
-      box-shadow: var(--shadow);
-      animation: slideDown 0.4s ease;
+    /* Typewriter effect */
+    .typewriter-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: rgba(255,255,255,0.85);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.8s step-end infinite;
     }
-    .welcome-banner.show { display: flex; }
-    .welcome-banner .icon {
-      font-size: 1.5rem;
-      flex-shrink: 0;
-      line-height: 1;
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
-    .welcome-banner .text {
+
+    /* Validity selector */
+    .validity-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .validity-option {
       flex: 1;
-      font-size: 0.9375rem;
-      color: var(--text);
-      line-height: 1.5;
-    }
-    .welcome-banner .close {
-      background: none;
-      border: none;
-      font-size: 1.125rem;
-      color: var(--text-light);
+      min-width: 80px;
+      padding: 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.8125rem;
       cursor: pointer;
-      flex-shrink: 0;
-      padding: 0 0 0 6px;
-      line-height: 1;
+      background: var(--card);
+      transition: all 0.15s;
     }
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-12px); }
-      to { opacity: 1; transform: translateY(0); }
+    .validity-option.active {
+      border-color: var(--primary);
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .validity-detail {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      display: none;
+    }
+    .validity-detail.active { display: block; }
+    .day-selector {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .day-chip {
+      padding: 8px 0;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      text-align: center;
+      font-size: 0.75rem;
+      cursor: pointer;
+      background: var(--card);
+      transition: all 0.15s;
+    }
+    .day-chip.active {
+      border-color: var(--primary);
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Statistics page */
+    .stats-filter {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+    }
+    .stats-filter-btn {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text);
+    }
+    .stats-filter-btn.active {
+      border-color: var(--primary);
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+    .stats-table th,
+    .stats-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-table th {
+      color: var(--text-light);
+      font-weight: 500;
+      background: var(--bg);
+    }
+    .stats-table td { color: var(--text); }
+    .stats-table .num { font-weight: 600; color: var(--primary); }
+    .stats-table .rate-high { color: var(--success); }
+    .stats-table .rate-mid { color: var(--warning); }
+    .stats-table .rate-low { color: var(--danger); }
+    .ai-summary {
+      background: linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 100%);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 0 16px 16px;
+    }
+    .ai-summary-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-summary-body {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .ai-summary-body p { margin-bottom: 6px; }
+    .ai-summary-body p:last-child { margin-bottom: 0; }
+
+    /* Export/Import */
+    .profile-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 16px 16px;
+    }
+    .hidden-input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
     }
   </style>
 </head>
@@ -575,13 +695,7 @@
 <div class="page" id="page-home">
   <div class="app-header">
     <h1 id="home-greeting">欢迎</h1>
-    <div class="sub" id="home-role">管理员</div>
-  </div>
-
-  <div class="welcome-banner" id="welcome-banner">
-    <span class="icon" id="welcome-icon">💬</span>
-    <span class="text" id="welcome-text"></span>
-    <button class="close" onclick="dismissWelcome()">&times;</button>
+    <div class="sub" id="home-role"><span id="home-role-text"></span><span class="typewriter-cursor" id="typewriter-cursor"></span></div>
   </div>
 
   <div class="stats-row">
@@ -671,6 +785,55 @@
   <div class="card" id="redemption-list"></div>
 </div>
 
+<!-- ===================== STATISTICS PAGE ===================== -->
+<div class="page" id="page-statistics">
+  <div class="app-header">
+    <h1>统计</h1>
+    <div class="sub">学习数据分析与洞察</div>
+  </div>
+  <div class="stats-filter">
+    <button class="stats-filter-btn active" data-range="week" onclick="setStatsRange('week')">本周</button>
+    <button class="stats-filter-btn" data-range="month" onclick="setStatsRange('month')">本月</button>
+    <button class="stats-filter-btn" data-range="all" onclick="setStatsRange('all')">累计</button>
+  </div>
+  <div class="ai-summary" id="ai-summary">
+    <div class="ai-summary-title">&#129302; AI 智能分析</div>
+    <div class="ai-summary-body" id="ai-summary-body">正在分析数据...</div>
+  </div>
+  <div class="card" id="stats-table-card">
+    <div class="card-header">
+      <span class="card-title">任务统计</span>
+    </div>
+    <div class="card-body" style="padding: 0; overflow-x: auto;">
+      <table class="stats-table" id="stats-table">
+        <thead>
+          <tr>
+            <th>任务</th>
+            <th style="text-align:center;">完成次数</th>
+            <th style="text-align:center;">获得积分</th>
+            <th style="text-align:center;">完成率</th>
+          </tr>
+        </thead>
+        <tbody id="stats-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="stats-row" style="padding-top:0;">
+    <div class="stat-box">
+      <div class="value" id="stats-summary-total">0</div>
+      <div class="label">总积分</div>
+    </div>
+    <div class="stat-box">
+      <div class="value success" id="stats-summary-completed">0</div>
+      <div class="label">完成次数</div>
+    </div>
+    <div class="stat-box">
+      <div class="value warning" id="stats-summary-rate">0%</div>
+      <div class="label">总完成率</div>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== SHARE PAGE ===================== -->
 <div class="page" id="page-share">
   <div class="app-header">
@@ -682,7 +845,7 @@
     提示：将对应角色的链接通过微信/钉钉发送给家庭成员，他们打开后将以对应身份进入系统。
   </div>
   <div class="card" style="margin: 0 16px 16px; padding: 14px 16px;">
-    <div class="text-sm" style="color: var(--warning); font-weight: 500;">⚠️ 使用须知</div>
+    <div class="text-sm" style="color: var(--warning); font-weight: 500;">&#9888; 使用须知</div>
     <div class="text-sm text-light mt-1">
       如需通过微信/钉钉分享链接给其他家庭成员使用，请先将此文件上传至网页服务器（如阿里云OSS、腾讯云COS、GitHub Pages等），然后使用服务器上的链接进行分享。直接发送本地文件路径无法在其他设备上打开。
     </div>
@@ -704,6 +867,13 @@
       <span>切换身份</span>
       <span>&#8250;</span>
     </div>
+  </div>
+  <div class="profile-actions">
+    <button class="btn btn-outline btn-block" onclick="exportData()">&#128190; 导出数据</button>
+    <button class="btn btn-outline btn-block" onclick="triggerImport()">&#128194; 导入数据</button>
+    <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importData(this)">
+  </div>
+  <div class="card" style="margin-top:0;">
     <div class="list-item flex-between danger-zone" onclick="resetData()">
       <span>重置所有数据</span>
       <span>&#8250;</span>
@@ -716,6 +886,10 @@
   <div class="nav-item active" data-page="page-home" onclick="showPage('page-home')">
     <span class="icon">&#128197;</span>
     日历
+  </div>
+  <div class="nav-item" data-page="page-statistics" onclick="showPage('page-statistics')">
+    <span class="icon">&#128202;</span>
+    统计
   </div>
   <div class="nav-item" data-page="page-redemption" onclick="showPage('page-redemption')">
     <span class="icon">&#127873;</span>
@@ -746,6 +920,36 @@
       <label class="form-label">分值（积分）</label>
       <input class="form-input" id="input-task-points" type="number" placeholder="例如：5" value="5">
     </div>
+    <div class="form-group">
+      <label class="form-label">有效期设置</label>
+      <div class="validity-options">
+        <div class="validity-option active" data-type="permanent" onclick="setValidityType('permanent')">永久有效</div>
+        <div class="validity-option" data-type="shortTerm" onclick="setValidityType('shortTerm')">短期有效</div>
+        <div class="validity-option" data-type="periodic" onclick="setValidityType('periodic')">周期有效</div>
+      </div>
+      <div class="validity-detail" id="validity-shortTerm">
+        <div class="form-group" style="margin-bottom:10px;">
+          <label class="form-label" style="font-size:0.8125rem;">开始日期</label>
+          <input class="form-input" id="input-task-start" type="date">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:0.8125rem;">结束日期</label>
+          <input class="form-input" id="input-task-end" type="date">
+        </div>
+      </div>
+      <div class="validity-detail" id="validity-periodic">
+        <div class="form-label" style="font-size:0.8125rem; margin-bottom:8px;">选择周期</div>
+        <div class="day-selector" id="periodic-days">
+          <div class="day-chip" data-day="1" onclick="toggleDayChip(this)">一</div>
+          <div class="day-chip" data-day="2" onclick="toggleDayChip(this)">二</div>
+          <div class="day-chip" data-day="3" onclick="toggleDayChip(this)">三</div>
+          <div class="day-chip" data-day="4" onclick="toggleDayChip(this)">四</div>
+          <div class="day-chip" data-day="5" onclick="toggleDayChip(this)">五</div>
+          <div class="day-chip" data-day="6" onclick="toggleDayChip(this)">六</div>
+          <div class="day-chip" data-day="7" onclick="toggleDayChip(this)">日</div>
+        </div>
+      </div>
+    </div>
     <button class="btn btn-primary btn-block" onclick="addTask()">保存</button>
   </div>
 </div>
@@ -764,6 +968,36 @@
     <div class="form-group">
       <label class="form-label">分值（积分）</label>
       <input class="form-input" id="edit-task-points" type="number">
+    </div>
+    <div class="form-group">
+      <label class="form-label">有效期设置</label>
+      <div class="validity-options">
+        <div class="validity-option" data-type="permanent" id="edit-validity-permanent" onclick="setEditValidityType('permanent')">永久有效</div>
+        <div class="validity-option" data-type="shortTerm" id="edit-validity-shortTerm" onclick="setEditValidityType('shortTerm')">短期有效</div>
+        <div class="validity-option" data-type="periodic" id="edit-validity-periodic" onclick="setEditValidityType('periodic')">周期有效</div>
+      </div>
+      <div class="validity-detail" id="edit-validity-shortTerm-detail">
+        <div class="form-group" style="margin-bottom:10px;">
+          <label class="form-label" style="font-size:0.8125rem;">开始日期</label>
+          <input class="form-input" id="edit-task-start" type="date">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:0.8125rem;">结束日期</label>
+          <input class="form-input" id="edit-task-end" type="date">
+        </div>
+      </div>
+      <div class="validity-detail" id="edit-validity-periodic-detail">
+        <div class="form-label" style="font-size:0.8125rem; margin-bottom:8px;">选择周期</div>
+        <div class="day-selector" id="edit-periodic-days">
+          <div class="day-chip" data-day="1" onclick="toggleEditDayChip(this)">一</div>
+          <div class="day-chip" data-day="2" onclick="toggleEditDayChip(this)">二</div>
+          <div class="day-chip" data-day="3" onclick="toggleEditDayChip(this)">三</div>
+          <div class="day-chip" data-day="4" onclick="toggleEditDayChip(this)">四</div>
+          <div class="day-chip" data-day="5" onclick="toggleEditDayChip(this)">五</div>
+          <div class="day-chip" data-day="6" onclick="toggleEditDayChip(this)">六</div>
+          <div class="day-chip" data-day="7" onclick="toggleEditDayChip(this)">日</div>
+        </div>
+      </div>
     </div>
     <button class="btn btn-primary btn-block" onclick="saveEditTask()">保存</button>
     <button class="btn btn-danger btn-block mt-1" onclick="deleteEditTask()">删除任务</button>
@@ -795,22 +1029,21 @@
 <script>
 // ===================== DATA MODEL =====================
 const ROLES = [
-  { id: 'admin', name: '妈妈', type: 'admin', avatar: '👩' },
-  { id: 'dad', name: '爸爸', type: 'parent', avatar: '👨' },
-  { id: 'grandpa1', name: '爷爷', type: 'elder', avatar: '👴' },
-  { id: 'grandma1', name: '奶奶', type: 'elder', avatar: '👵' },
-  { id: 'grandpa2', name: '姥爷', type: 'elder', avatar: '👴' },
-  { id: 'grandma2', name: '姥姥', type: 'elder', avatar: '👵' },
-  { id: 'yoyo', name: 'YOYO', type: 'child', avatar: '👶' }
+  { id: 'admin', name: '妈妈', type: 'admin', avatar: '&#128105;' },
+  { id: 'dad', name: '爸爸', type: 'parent', avatar: '&#128104;' },
+  { id: 'grandpa1', name: '爷爷', type: 'elder', avatar: '&#128116;' },
+  { id: 'grandma1', name: '奶奶', type: 'elder', avatar: '&#128117;' },
+  { id: 'grandpa2', name: '姥爷', type: 'elder', avatar: '&#128116;' },
+  { id: 'grandma2', name: '姥姥', type: 'elder', avatar: '&#128117;' },
+  { id: 'yoyo', name: 'YOYO', type: 'child', avatar: '&#128118;' }
 ];
 
-const STORAGE_KEY = 'yoyo_tracker_v1';
+const STORAGE_KEY = 'yoyo_tracker_v2';
 const ROLE_KEY = 'yoyo_tracker_role';
-const WELCOME_KEY_PREFIX = 'yoyo_welcome_';
 
 const WELCOME_MSGS = {
   admin: [
-    "今天也辛苦啦，YOYO有你真的很幸福 💕",
+    "今天也辛苦啦，YOYO有你真的很幸福 ",
     "你是这个家最温暖的支柱，谢谢你",
     "教育路上，你的用心YOYO都看在眼里",
     "又是充满爱的一天，和YOYO一起加油",
@@ -840,10 +1073,10 @@ const WELCOME_MSGS = {
   ],
   child: [
     "今天又是充满可能的一天，相信自己！",
-    "YOYO最棒了，坚持就是胜利 💪",
+    "YOYO最棒了，坚持就是胜利 ",
     "每一份努力，都会让你变得更强大",
     "你是自己学习的小主人，继续加油",
-    "今天也要做闪闪发光的小太阳 ☀️",
+    "今天也要做闪闪发光的小太阳 ",
     "勇敢的小战士，新一天的挑战来啦",
     "你的自律会让你走得更远，YOYO真厉害",
     "相信自己，你可以做到任何想做的事"
@@ -851,18 +1084,18 @@ const WELCOME_MSGS = {
 };
 
 const ENCOURAGE_MSGS = [
-  "太棒了！又完成一项，YOYO真厉害 👏",
+  "太棒了！又完成一项，YOYO真厉害 ",
   "一分耕耘一分收获，继续加油",
-  "你的努力正在闪闪发光 ✨",
+  "你的努力正在闪闪发光 ",
   "坚持的力量，你正在证明它",
   "好样的！自律的小榜样",
   "每一次完成，都是向更好的自己迈进",
   "YOYO的努力，全家都为你骄傲",
   "积少成多，你的坚持一定会有回报",
   "今天的你，比昨天更优秀了一点",
-  "学习小达人，继续保持 🌟",
+  "学习小达人，继续保持 ",
   "这就是自律的力量，YOYO太棒了",
-  "完成了！给自己一个大大的赞 👍",
+  "完成了！给自己一个大大的赞 ",
   "你认真的样子，真的很酷",
   "又前进了一步，YOYO加油",
   "坚持下来的你，已经赢了一半"
@@ -873,7 +1106,9 @@ let state = {
   tasks: [],
   records: {}, // { "2026-05-11": { "taskId": { completed: true, lastEditor: "妈妈", lastEditedAt: "..." } } }
   redemptions: [],
-  currentMonth: new Date()
+  currentMonth: new Date(),
+  selectedDate: null,
+  statsRange: 'week'
 };
 
 // ===================== STORAGE =====================
@@ -885,6 +1120,10 @@ function loadData() {
       state.tasks = saved.tasks || [];
       state.records = saved.records || {};
       state.redemptions = saved.redemptions || [];
+      // Migrate old tasks without validity
+      state.tasks.forEach(t => {
+        if (!t.validity) t.validity = { type: 'permanent' };
+      });
     }
   } catch (e) { console.error(e); }
 }
@@ -900,12 +1139,12 @@ function saveData() {
 function initDemoData() {
   if (state.tasks.length === 0) {
     state.tasks = [
-      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: now() },
-      { id: genId(), name: '数学练习', points: 5, createdAt: now() },
-      { id: genId(), name: '练字', points: 3, createdAt: now() },
-      { id: genId(), name: '阅读课外书', points: 5, createdAt: now() },
-      { id: genId(), name: '体育运动', points: 3, createdAt: now() },
-      { id: genId(), name: '整理书包/房间', points: 2, createdAt: now() }
+      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: now(), validity: { type: 'permanent' } },
+      { id: genId(), name: '数学练习', points: 5, createdAt: now(), validity: { type: 'permanent' } },
+      { id: genId(), name: '练字', points: 3, createdAt: now(), validity: { type: 'permanent' } },
+      { id: genId(), name: '阅读课外书', points: 5, createdAt: now(), validity: { type: 'permanent' } },
+      { id: genId(), name: '体育运动', points: 3, createdAt: now(), validity: { type: 'periodic', days: [1,2,3,4,5,6,7] } },
+      { id: genId(), name: '整理书包/房间', points: 2, createdAt: now(), validity: { type: 'permanent' } }
     ];
     saveData();
   }
@@ -915,7 +1154,7 @@ function initDemoData() {
 function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
 function now() { return new Date().toISOString(); }
 function fmtDate(d) {
-  const date = typeof d === 'string' ? new Date(d) : d;
+  const date = typeof d === 'string' ? new Date(d + 'T00:00:00') : d;
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -932,7 +1171,7 @@ function getRoleType(roleId) {
   if (!role) return 'parent';
   if (role.type === 'admin') return 'admin';
   if (role.type === 'child') return 'child';
-  return 'parent'; // dad is parent, elders share parent messages
+  return 'parent';
 }
 
 function pickRandom(arr) {
@@ -949,43 +1188,6 @@ function getEncourageMsg() {
   return pickRandom(ENCOURAGE_MSGS);
 }
 
-function welcomeKey() {
-  return WELCOME_KEY_PREFIX + todayStr() + '_' + state.currentRole;
-}
-
-function hasShownWelcomeToday() {
-  try {
-    return localStorage.getItem(welcomeKey()) === '1';
-  } catch (e) { return false; }
-}
-
-function markWelcomeShown() {
-  try { localStorage.setItem(welcomeKey(), '1'); } catch (e) {}
-}
-
-function dismissWelcome() {
-  const banner = document.getElementById('welcome-banner');
-  if (banner) banner.classList.remove('show');
-}
-
-function showWelcomeIfNeeded() {
-  if (!state.currentRole) return;
-  if (hasShownWelcomeToday()) {
-    dismissWelcome();
-    return;
-  }
-  const msg = getWelcomeMsg(state.currentRole);
-  const banner = document.getElementById('welcome-banner');
-  const text = document.getElementById('welcome-text');
-  const icon = document.getElementById('welcome-icon');
-  if (banner && text) {
-    text.textContent = msg;
-    icon.textContent = isChild() ? '💪' : '💕';
-    banner.classList.add('show');
-    markWelcomeShown();
-  }
-}
-
 function showToast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -999,8 +1201,85 @@ function openModal(id) {
   if (id === 'modal-add-redemption') {
     document.getElementById('input-redeem-date').value = todayStr();
   }
+  // Reset add-task validity UI
+  if (id === 'modal-add-task') {
+    setValidityType('permanent');
+    document.getElementById('input-task-start').value = '';
+    document.getElementById('input-task-end').value = '';
+    document.querySelectorAll('#periodic-days .day-chip').forEach(c => c.classList.remove('active'));
+  }
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// ===================== VALIDITY HELPERS =====================
+function isTaskValidOnDate(task, dateStr) {
+  if (!task.validity || task.validity.type === 'permanent') return true;
+  const v = task.validity;
+  if (v.type === 'shortTerm') {
+    if (!v.startDate || !v.endDate) return true;
+    return dateStr >= v.startDate && dateStr <= v.endDate;
+  }
+  if (v.type === 'periodic') {
+    if (!v.days || v.days.length === 0) return false;
+    const d = new Date(dateStr + 'T00:00:00');
+    // getDay(): 0=Sunday, we use 1=Monday...7=Sunday
+    let day = d.getDay();
+    if (day === 0) day = 7;
+    return v.days.includes(day);
+  }
+  return true;
+}
+
+function getValidityLabel(task) {
+  if (!task.validity || task.validity.type === 'permanent') return '永久';
+  const v = task.validity;
+  if (v.type === 'shortTerm') {
+    if (v.startDate && v.endDate) return `${v.startDate.slice(5)} ~ ${v.endDate.slice(5)}`;
+    return '短期';
+  }
+  if (v.type === 'periodic') {
+    if (!v.days || v.days.length === 0) return '周期';
+    const names = ['','一','二','三','四','五','六','日'];
+    return v.days.map(d => names[d]).join('') + '';
+  }
+  return '';
+}
+
+// ===================== TYPEWRITER WELCOME =====================
+let typewriterTimer = null;
+let currentTypedText = '';
+
+function typeWriter(text, elementId, speed = 60) {
+  const el = document.getElementById(elementId);
+  const cursor = document.getElementById('typewriter-cursor');
+  if (!el) return;
+  if (typewriterTimer) {
+    clearInterval(typewriterTimer);
+    typewriterTimer = null;
+  }
+  currentTypedText = '';
+  el.textContent = '';
+  if (cursor) cursor.style.display = 'inline-block';
+  let i = 0;
+  typewriterTimer = setInterval(() => {
+    if (i < text.length) {
+      currentTypedText += text.charAt(i);
+      el.textContent = currentTypedText;
+      i++;
+    } else {
+      clearInterval(typewriterTimer);
+      typewriterTimer = null;
+      if (cursor) cursor.style.display = 'none';
+    }
+  }, speed);
+}
+
+function startWelcomeTypewriter() {
+  if (!state.currentRole) return;
+  const msg = getWelcomeMsg(state.currentRole);
+  const icon = isChild() ? '' : '';
+  typeWriter(icon + msg, 'home-role-text', 55);
+}
 
 // ===================== PAGE NAVIGATION =====================
 function showPage(pageId) {
@@ -1026,6 +1305,7 @@ function showPage(pageId) {
   if (pageId === 'page-redemption') renderRedemptions();
   if (pageId === 'page-share') renderShareLinks();
   if (pageId === 'page-profile') renderProfile();
+  if (pageId === 'page-statistics') renderStatistics();
 
   window.scrollTo(0, 0);
 }
@@ -1062,7 +1342,6 @@ function selectRole(roleId) {
   const role = getRoleById(roleId);
 
   document.getElementById('home-greeting').textContent = `欢迎，${role.name}`;
-  document.getElementById('home-role').textContent = role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员';
 
   // Toggle admin-only nav
   document.getElementById('nav-tasks').style.display = isAdmin() ? 'block' : 'none';
@@ -1085,7 +1364,7 @@ function switchRole() {
 function renderHome() {
   renderStats();
   renderCalendar();
-  showWelcomeIfNeeded();
+  startWelcomeTypewriter();
 }
 
 function renderStats() {
@@ -1184,7 +1463,9 @@ function getDayScore(dateStr) {
   for (const taskId in rec) {
     if (rec[taskId].completed) {
       const task = state.tasks.find(t => t.id === taskId);
-      if (task) score += task.points;
+      if (task && isTaskValidOnDate(task, dateStr)) {
+        score += task.points;
+      }
     }
   }
   return score;
@@ -1203,7 +1484,7 @@ function getMonthScore(date) {
   const month = date.getMonth();
   let total = 0;
   for (const dateStr in state.records) {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + 'T00:00:00');
     if (d.getFullYear() === year && d.getMonth() === month) {
       total += getDayScore(dateStr);
     }
@@ -1220,10 +1501,11 @@ function getWeekScore(date) {
   monday.setHours(0, 0, 0, 0);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
 
   let total = 0;
   for (const dateStr in state.records) {
-    const recordDate = new Date(dateStr);
+    const recordDate = new Date(dateStr + 'T00:00:00');
     if (recordDate >= monday && recordDate <= sunday) {
       total += getDayScore(dateStr);
     }
@@ -1248,17 +1530,19 @@ function showDayDetail(dateStr) {
   const container = document.getElementById('day-tasks');
   container.innerHTML = '';
 
-  if (state.tasks.length === 0) {
+  const validTasks = state.tasks.filter(t => isTaskValidOnDate(t, dateStr));
+
+  if (validTasks.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="icon">&#128196;</div>
-        <div>暂无任务，请联系管理员添加</div>
+        <div>今日无有效任务</div>
       </div>`;
     showPage('page-day');
     return;
   }
 
-  state.tasks.forEach(task => {
+  validTasks.forEach(task => {
     const rec = (state.records[dateStr] || {})[task.id];
     const completed = rec ? rec.completed : false;
     const editorInfo = rec && rec.lastEditedAt
@@ -1313,6 +1597,54 @@ function toggleTask(dateStr, taskId) {
 }
 
 // ===================== TASK MANAGEMENT =====================
+let currentValidityType = 'permanent';
+let currentEditValidityType = 'permanent';
+
+function setValidityType(type) {
+  currentValidityType = type;
+  document.querySelectorAll('#modal-add-task .validity-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.type === type);
+  });
+  document.getElementById('validity-shortTerm').classList.toggle('active', type === 'shortTerm');
+  document.getElementById('validity-periodic').classList.toggle('active', type === 'periodic');
+}
+
+function toggleDayChip(el) {
+  el.classList.toggle('active');
+}
+
+function setEditValidityType(type) {
+  currentEditValidityType = type;
+  document.querySelectorAll('#modal-edit-task .validity-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.type === type);
+  });
+  document.getElementById('edit-validity-shortTerm-detail').classList.toggle('active', type === 'shortTerm');
+  document.getElementById('edit-validity-periodic-detail').classList.toggle('active', type === 'periodic');
+}
+
+function toggleEditDayChip(el) {
+  el.classList.toggle('active');
+}
+
+function getValidityFromModal(prefix) {
+  const type = prefix === '' ? currentValidityType : currentEditValidityType;
+  if (type === 'permanent') return { type: 'permanent' };
+  if (type === 'shortTerm') {
+    const start = document.getElementById(prefix + 'task-start').value;
+    const end = document.getElementById(prefix + 'task-end').value;
+    return { type: 'shortTerm', startDate: start, endDate: end };
+  }
+  if (type === 'periodic') {
+    const containerId = prefix === '' ? 'periodic-days' : 'edit-periodic-days';
+    const days = [];
+    document.querySelectorAll(`#${containerId} .day-chip.active`).forEach(el => {
+      days.push(parseInt(el.dataset.day));
+    });
+    return { type: 'periodic', days: days.sort((a, b) => a - b) };
+  }
+  return { type: 'permanent' };
+}
+
 function renderTaskManage() {
   const container = document.getElementById('task-manage-list');
   if (state.tasks.length === 0) {
@@ -1329,9 +1661,13 @@ function renderTaskManage() {
     const item = document.createElement('div');
     item.className = 'list-item flex-between';
     item.style.cursor = 'pointer';
+    const vLabel = getValidityLabel(task);
     item.innerHTML = `
-      <div>
-        <div class="font-bold">${task.name}</div>
+      <div style="flex:1; min-width:0;">
+        <div class="font-bold" style="display:flex; align-items:center; flex-wrap:wrap;">
+          ${task.name}
+          <span class="task-validity-tag">${vLabel}</span>
+        </div>
         <div class="text-sm text-light">${task.points} 积分</div>
       </div>
       <span class="text-light">&#8250;</span>
@@ -1346,7 +1682,20 @@ function addTask() {
   const points = parseInt(document.getElementById('input-task-points').value) || 0;
   if (!name) { showToast('请输入任务名称'); return; }
 
-  state.tasks.push({ id: genId(), name, points, createdAt: now() });
+  const validity = getValidityFromModal('');
+  if (validity.type === 'shortTerm') {
+    if (!validity.startDate || !validity.endDate) {
+      showToast('请设置开始和结束日期'); return;
+    }
+    if (validity.startDate > validity.endDate) {
+      showToast('开始日期不能晚于结束日期'); return;
+    }
+  }
+  if (validity.type === 'periodic' && (!validity.days || validity.days.length === 0)) {
+    showToast('请至少选择一天'); return;
+  }
+
+  state.tasks.push({ id: genId(), name, points, createdAt: now(), validity });
   saveData();
   closeModal('modal-add-task');
   document.getElementById('input-task-name').value = '';
@@ -1359,6 +1708,29 @@ function openEditTask(task) {
   document.getElementById('edit-task-id').value = task.id;
   document.getElementById('edit-task-name').value = task.name;
   document.getElementById('edit-task-points').value = task.points;
+
+  const v = task.validity || { type: 'permanent' };
+  currentEditValidityType = v.type;
+  document.querySelectorAll('#modal-edit-task .validity-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.type === v.type);
+  });
+
+  document.getElementById('edit-validity-shortTerm-detail').classList.toggle('active', v.type === 'shortTerm');
+  document.getElementById('edit-validity-periodic-detail').classList.toggle('active', v.type === 'periodic');
+
+  if (v.type === 'shortTerm') {
+    document.getElementById('edit-task-start').value = v.startDate || '';
+    document.getElementById('edit-task-end').value = v.endDate || '';
+  } else {
+    document.getElementById('edit-task-start').value = '';
+    document.getElementById('edit-task-end').value = '';
+  }
+
+  document.querySelectorAll('#edit-periodic-days .day-chip').forEach(el => {
+    const day = parseInt(el.dataset.day);
+    el.classList.toggle('active', v.type === 'periodic' && v.days && v.days.includes(day));
+  });
+
   openModal('modal-edit-task');
 }
 
@@ -1368,10 +1740,24 @@ function saveEditTask() {
   const points = parseInt(document.getElementById('edit-task-points').value) || 0;
   if (!name) { showToast('请输入任务名称'); return; }
 
+  const validity = getValidityFromModal('edit-');
+  if (validity.type === 'shortTerm') {
+    if (!validity.startDate || !validity.endDate) {
+      showToast('请设置开始和结束日期'); return;
+    }
+    if (validity.startDate > validity.endDate) {
+      showToast('开始日期不能晚于结束日期'); return;
+    }
+  }
+  if (validity.type === 'periodic' && (!validity.days || validity.days.length === 0)) {
+    showToast('请至少选择一天'); return;
+  }
+
   const task = state.tasks.find(t => t.id === id);
   if (task) {
     task.name = name;
     task.points = points;
+    task.validity = validity;
     saveData();
     closeModal('modal-edit-task');
     renderTaskManage();
@@ -1496,6 +1882,203 @@ function copyLink(url) {
   }
 }
 
+// ===================== STATISTICS =====================
+function setStatsRange(range) {
+  state.statsRange = range;
+  document.querySelectorAll('.stats-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.range === range);
+  });
+  renderStatistics();
+}
+
+function getStatsDateRange() {
+  const today = new Date();
+  const todayS = todayStr();
+  if (state.statsRange === 'week') {
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 0);
+    const monday = new Date(today);
+    monday.setDate(diff);
+    return { start: fmtDate(monday), end: todayS };
+  }
+  if (state.statsRange === 'month') {
+    const start = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+    return { start, end: todayS };
+  }
+  return { start: null, end: null };
+}
+
+function isDateInRange(dateStr, range) {
+  if (!range.start) return true;
+  return dateStr >= range.start && dateStr <= range.end;
+}
+
+function renderStatistics() {
+  const range = getStatsDateRange();
+  const tbody = document.getElementById('stats-table-body');
+  tbody.innerHTML = '';
+
+  // Gather data per task
+  const taskStats = [];
+  let totalPossible = 0;
+  let totalCompleted = 0;
+  let totalPoints = 0;
+
+  state.tasks.forEach(task => {
+    let completedCount = 0;
+    let pointsEarned = 0;
+    let possibleDays = 0;
+
+    // Count completions and possible days within range
+    const allDates = Object.keys(state.records).sort();
+    // Also include dates where task is valid but no record exists
+    let checkDates = allDates;
+    if (range.start && range.end) {
+      checkDates = allDates.filter(d => d >= range.start && d <= range.end);
+    }
+
+    // For completion count and points
+    checkDates.forEach(dateStr => {
+      if (!isTaskValidOnDate(task, dateStr)) return;
+      possibleDays++;
+      const rec = state.records[dateStr];
+      if (rec && rec[task.id] && rec[task.id].completed) {
+        completedCount++;
+        pointsEarned += task.points;
+      }
+    });
+
+    // For tasks with no records at all in range but valid on some days, we still want possible days
+    // If range is set, count all valid days in range
+    if (range.start && range.end) {
+      const s = new Date(range.start + 'T00:00:00');
+      const e = new Date(range.end + 'T00:00:00');
+      possibleDays = 0;
+      for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+        const ds = fmtDate(d);
+        if (isTaskValidOnDate(task, ds)) possibleDays++;
+      }
+    } else {
+      // all-time: use all dates that have records where task is valid, or at least 1 if never recorded
+      const validRecordDates = allDates.filter(d => isTaskValidOnDate(task, d));
+      possibleDays = validRecordDates.length || 1;
+    }
+
+    const rate = possibleDays > 0 ? Math.round((completedCount / possibleDays) * 100) : 0;
+    taskStats.push({
+      name: task.name,
+      completedCount,
+      pointsEarned,
+      rate,
+      possibleDays
+    });
+
+    totalPossible += possibleDays;
+    totalCompleted += completedCount;
+    totalPoints += pointsEarned;
+  });
+
+  // Sort by points earned desc
+  taskStats.sort((a, b) => b.pointsEarned - a.pointsEarned);
+
+  if (taskStats.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light); padding:24px;">暂无任务数据</td></tr>`;
+  } else {
+    taskStats.forEach(ts => {
+      const tr = document.createElement('tr');
+      const rateClass = ts.rate >= 80 ? 'rate-high' : ts.rate >= 50 ? 'rate-mid' : 'rate-low';
+      tr.innerHTML = `
+        <td>${ts.name}</td>
+        <td style="text-align:center;" class="num">${ts.completedCount}</td>
+        <td style="text-align:center;" class="num">${ts.pointsEarned}</td>
+        <td style="text-align:center;" class="${rateClass}">${ts.rate}%</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('stats-summary-total').textContent = totalPoints;
+  document.getElementById('stats-summary-completed').textContent = totalCompleted;
+  const overallRate = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+  document.getElementById('stats-summary-rate').textContent = overallRate + '%';
+
+  // AI Summary
+  generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, range);
+}
+
+function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, range) {
+  const container = document.getElementById('ai-summary-body');
+  if (taskStats.length === 0) {
+    container.innerHTML = '<p>暂无足够数据进行分析。快去添加任务并开始记录吧！</p>';
+    return;
+  }
+
+  const bestTask = taskStats[0];
+  const worstTask = taskStats[taskStats.length - 1];
+  const rangeLabel = state.statsRange === 'week' ? '本周' : state.statsRange === 'month' ? '本月' : '累计';
+
+  // Trend: compare week-over-week or month-over-month if enough data
+  let trendText = '';
+  if (state.statsRange === 'week') {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 0) - 7;
+    const prevMonday = new Date(today);
+    prevMonday.setDate(diff);
+    const prevSunday = new Date(prevMonday);
+    prevSunday.setDate(prevMonday.getDate() + 6);
+    const prevStart = fmtDate(prevMonday);
+    const prevEnd = fmtDate(prevSunday);
+    let prevPoints = 0;
+    for (const dateStr in state.records) {
+      if (dateStr >= prevStart && dateStr <= prevEnd) {
+        prevPoints += getDayScore(dateStr);
+      }
+    }
+    if (prevPoints > 0) {
+      const change = totalPoints - prevPoints;
+      if (change > 0) trendText = `比上周多获得 <strong>${change}</strong> 分，进步明显！`;
+      else if (change < 0) trendText = `比上周少 <strong>${Math.abs(change)}</strong> 分，下周加油赶上！`;
+      else trendText = `与上周持平，保持稳定！`;
+    }
+  }
+
+  const sentences = [];
+  sentences.push(`<strong>${rangeLabel}</strong>共完成 <strong>${totalCompleted}</strong> 次任务，获得 <strong>${totalPoints}</strong> 积分，整体完成率 <strong>${overallRate}%</strong>。`);
+
+  if (trendText) sentences.push(trendText);
+
+  if (bestTask && bestTask.completedCount > 0) {
+    sentences.push(`表现最棒的是「${bestTask.name}」，完成了 <strong>${bestTask.completedCount}</strong> 次。`);
+  }
+
+  if (worstTask && worstTask.name !== bestTask.name) {
+    if (worstTask.rate < 50) {
+      sentences.push(`「${worstTask.name}」完成率偏低，可以尝试制定小目标逐步提升哦。`);
+    } else if (worstTask.completedCount === 0) {
+      sentences.push(`「${worstTask.name}」还没有完成记录，不妨从第一次开始！`);
+    }
+  }
+
+  if (overallRate >= 80) {
+    sentences.push('整体表现非常棒，YOYO的自律让人惊叹，继续保持！');
+  } else if (overallRate >= 50) {
+    sentences.push('完成度不错，再努力一点点就能更棒了，YOYO加油！');
+  } else {
+    sentences.push('刚开始总是最难的，每天坚持一点点，积少成多就能看到大变化！');
+  }
+
+  // Suggestion based on balance
+  const balance = getBalance();
+  if (balance > 50) {
+    sentences.push(`当前积分余额充足（${balance}分），可以适当兑换奖励激励自己。`);
+  } else if (balance < 10) {
+    sentences.push('积分余额不多了，继续完成任务积攒积分吧！');
+  }
+
+  container.innerHTML = sentences.map(s => `<p>${s}</p>`).join('');
+}
+
 // ===================== PROFILE =====================
 function renderProfile() {
   const role = getRoleById(state.currentRole);
@@ -1511,6 +2094,72 @@ function resetData() {
   saveData();
   showToast('数据已重置');
   showPage('page-home');
+}
+
+// ===================== EXPORT / IMPORT =====================
+function exportData() {
+  const data = {
+    version: 2,
+    exportAt: now(),
+    tasks: state.tasks,
+    records: state.records,
+    redemptions: state.redemptions
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `yoyo-study-tracker-backup-${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('数据已导出');
+}
+
+function triggerImport() {
+  document.getElementById('import-file').click();
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || typeof data !== 'object') throw new Error('无效的数据格式');
+      // Validate
+      if (!Array.isArray(data.tasks)) throw new Error('缺少任务数据');
+      if (typeof data.records !== 'object') throw new Error('缺少记录数据');
+      if (!Array.isArray(data.redemptions)) throw new Error('缺少兑换数据');
+
+      // Validate tasks structure
+      data.tasks.forEach((t, i) => {
+        if (!t.id || !t.name || typeof t.points !== 'number') {
+          throw new Error(`第 ${i+1} 个任务数据不完整`);
+        }
+        if (!t.validity) t.validity = { type: 'permanent' };
+      });
+
+      if (!confirm(`确定要导入数据吗？当前 ${state.tasks.length} 个任务、${Object.keys(state.records).length} 天记录将被覆盖。`)) {
+        input.value = '';
+        return;
+      }
+
+      state.tasks = data.tasks;
+      state.records = data.records;
+      state.redemptions = data.redemptions;
+      saveData();
+      showToast('数据导入成功');
+      showPage('page-home');
+    } catch (err) {
+      showToast('导入失败：' + err.message);
+    } finally {
+      input.value = '';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ===================== URL PARAMS =====================
