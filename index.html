@@ -1486,6 +1486,7 @@ function openModal(id) {
   // Set default date for redemption
   if (id === 'modal-add-redemption') {
     document.getElementById('input-redeem-date').value = todayStr();
+    document.getElementById('input-redeem-date').max = todayStr();
   }
   // Reset add-task validity UI
   if (id === 'modal-add-task') {
@@ -2157,6 +2158,7 @@ function openEditRedemption(id) {
   document.getElementById('edit-redeem-name').value = item.name;
   document.getElementById('edit-redeem-points').value = item.points;
   document.getElementById('edit-redeem-date').value = item.date;
+  document.getElementById('edit-redeem-date').max = todayStr();
   openModal('modal-edit-redemption');
 }
 
