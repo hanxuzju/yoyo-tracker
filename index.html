@@ -670,6 +670,32 @@
       width: 0;
       height: 0;
     }
+    .export-textarea {
+      width: 100%;
+      min-height: 160px;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.8125rem;
+      font-family: monospace;
+      background: var(--bg);
+      color: var(--text);
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .export-hint {
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    .btn-copy {
+      background: var(--success);
+      color: #fff;
+    }
+    .btn-copy.copied {
+      background: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -1023,6 +1049,42 @@
       <input class="form-input" id="input-redeem-date" type="date">
     </div>
     <button class="btn btn-primary btn-block" onclick="addRedemption()">确认兑换</button>
+  </div>
+</div>
+
+<!-- ===================== EXPORT DATA MODAL ===================== -->
+<div class="modal-overlay" id="modal-export-data">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">导出数据</span>
+      <button class="modal-close" onclick="closeModal('modal-export-data')">&times;</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">请全选复制下方文本，粘贴到微信/钉钉发送</label>
+      <textarea class="export-textarea" id="export-textarea" readonly onclick="this.select()"></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" id="btn-copy-export" onclick="copyExportText()">复制全部内容</button>
+    <div class="export-hint">
+      提示：点击上方文本框即可全选内容，然后复制粘贴到微信/钉钉发送给其他家庭成员。对方在应用中点击"导入数据"，粘贴这段文本即可恢复数据。
+    </div>
+  </div>
+</div>
+
+<!-- ===================== IMPORT DATA MODAL ===================== -->
+<div class="modal-overlay" id="modal-import-data">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">导入数据</span>
+      <button class="modal-close" onclick="closeModal('modal-import-data')">&times;</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">方式一：粘贴文本</label>
+      <textarea class="export-textarea" id="import-textarea" placeholder="请将别人发送给你的数据文本粘贴到这里..."></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="importFromText()">确认导入</button>
+    <div class="export-hint" style="margin:12px 0;">或</div>
+    <button class="btn btn-outline btn-block" onclick="triggerFileImport()">方式二：从文件导入</button>
+    <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importFromFile(this)">
   </div>
 </div>
 
@@ -2097,67 +2159,114 @@ function resetData() {
 }
 
 // ===================== EXPORT / IMPORT =====================
-function exportData() {
-  const data = {
+function getExportJSON() {
+  return JSON.stringify({
     version: 2,
     exportAt: now(),
     tasks: state.tasks,
     records: state.records,
     redemptions: state.redemptions
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `yoyo-study-tracker-backup-${todayStr()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('数据已导出');
+  }, null, 2);
+}
+
+function exportData() {
+  const jsonText = getExportJSON();
+  // Try file download first (works in normal browsers)
+  try {
+    const blob = new Blob([jsonText], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `yoyo-study-tracker-backup-${todayStr()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {}
+  // Always show the modal with copyable text (essential for WeChat/DingTalk)
+  document.getElementById('export-textarea').value = jsonText;
+  openModal('modal-export-data');
+}
+
+function copyExportText() {
+  const el = document.getElementById('export-textarea');
+  el.select();
+  el.setSelectionRange(0, 999999);
+  try {
+    document.execCommand('copy');
+    showToast('已复制，去微信/钉钉粘贴发送吧');
+    const btn = document.getElementById('btn-copy-export');
+    const orig = btn.textContent;
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  } catch (e) {
+    showToast('复制失败，请手动长按文本框全选复制');
+  }
 }
 
 function triggerImport() {
+  openModal('modal-import-data');
+}
+
+function triggerFileImport() {
   document.getElementById('import-file').click();
 }
 
-function importData(input) {
+function parseAndImport(jsonText) {
+  try {
+    const data = JSON.parse(jsonText);
+    if (!data || typeof data !== 'object') throw new Error('无效的数据格式');
+    if (!Array.isArray(data.tasks)) throw new Error('缺少任务数据');
+    if (typeof data.records !== 'object') throw new Error('缺少记录数据');
+    if (!Array.isArray(data.redemptions)) throw new Error('缺少兑换数据');
+
+    data.tasks.forEach((t, i) => {
+      if (!t.id || !t.name || typeof t.points !== 'number') {
+        throw new Error(`第 ${i+1} 个任务数据不完整`);
+      }
+      if (!t.validity) t.validity = { type: 'permanent' };
+    });
+
+    if (!confirm(`确定要导入数据吗？当前 ${state.tasks.length} 个任务、${Object.keys(state.records).length} 天记录将被覆盖。`)) {
+      return false;
+    }
+
+    state.tasks = data.tasks;
+    state.records = data.records;
+    state.redemptions = data.redemptions;
+    saveData();
+    showToast('数据导入成功');
+    closeModal('modal-import-data');
+    document.getElementById('import-textarea').value = '';
+    showPage('page-home');
+    return true;
+  } catch (err) {
+    showToast('导入失败：' + err.message);
+    return false;
+  }
+}
+
+function importFromText() {
+  const text = document.getElementById('import-textarea').value.trim();
+  if (!text) {
+    showToast('请先粘贴数据文本');
+    return;
+  }
+  parseAndImport(text);
+}
+
+function importFromFile(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!data || typeof data !== 'object') throw new Error('无效的数据格式');
-      // Validate
-      if (!Array.isArray(data.tasks)) throw new Error('缺少任务数据');
-      if (typeof data.records !== 'object') throw new Error('缺少记录数据');
-      if (!Array.isArray(data.redemptions)) throw new Error('缺少兑换数据');
-
-      // Validate tasks structure
-      data.tasks.forEach((t, i) => {
-        if (!t.id || !t.name || typeof t.points !== 'number') {
-          throw new Error(`第 ${i+1} 个任务数据不完整`);
-        }
-        if (!t.validity) t.validity = { type: 'permanent' };
-      });
-
-      if (!confirm(`确定要导入数据吗？当前 ${state.tasks.length} 个任务、${Object.keys(state.records).length} 天记录将被覆盖。`)) {
-        input.value = '';
-        return;
-      }
-
-      state.tasks = data.tasks;
-      state.records = data.records;
-      state.redemptions = data.redemptions;
-      saveData();
-      showToast('数据导入成功');
-      showPage('page-home');
-    } catch (err) {
-      showToast('导入失败：' + err.message);
-    } finally {
-      input.value = '';
-    }
+    parseAndImport(e.target.result);
+    input.value = '';
+  };
+  reader.onerror = function() {
+    showToast('文件读取失败');
+    input.value = '';
   };
   reader.readAsText(file);
 }
