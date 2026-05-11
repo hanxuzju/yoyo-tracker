@@ -697,8 +697,16 @@
       background: var(--primary);
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
+
+<!-- Init Loading -->
+<div id="init-loading" style="position:fixed;inset:0;background:rgba(245,247,250,0.92);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+  <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;"></div>
+  <div style="color:var(--text-light);font-size:0.875rem;">正在同步数据...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg);}}</style>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
@@ -1103,6 +1111,30 @@ const ROLES = [
 const STORAGE_KEY = 'yoyo_tracker_v2';
 const ROLE_KEY = 'yoyo_tracker_role';
 
+// ===================== SUPABASE CONFIG =====================
+const SUPABASE_URL = 'https://cmdijrowrfcvzxfqfdww.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZGlqcm93cmZjdnp4ZnFmZHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTYxODEsImV4cCI6MjA5NDA3MjE4MX0.WAwv6bfIr669h4Rk33Kh4NstygF6gWNReUEVb9FXE3A';
+const SUPABASE_DATA_KEY = 'yoyo_tracker_data';
+
+let supabaseClient = null;
+let syncChannel = null;
+let isSyncing = false;
+let saveDebounceTimer = null;
+let pendingSave = false;
+let cloudDataStatus = 'unknown'; // 'unknown', 'loaded', 'empty', 'error'
+
+function initSupabase() {
+  try {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return true;
+    }
+  } catch (e) {
+    console.error('Supabase init failed:', e);
+  }
+  return false;
+}
+
 const WELCOME_MSGS = {
   admin: [
     "今天也辛苦啦，YOYO有你真的很幸福 ",
@@ -1174,7 +1206,7 @@ let state = {
 };
 
 // ===================== STORAGE =====================
-function loadData() {
+function loadLocalCache() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -1182,12 +1214,116 @@ function loadData() {
       state.tasks = saved.tasks || [];
       state.records = saved.records || {};
       state.redemptions = saved.redemptions || [];
-      // Migrate old tasks without validity
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
       });
+      return true;
     }
   } catch (e) { console.error(e); }
+  return false;
+}
+
+async function loadFromSupabase() {
+  if (!supabaseClient) return false;
+  try {
+    const { data, error } = await supabaseClient
+      .from('app_data')
+      .select('value')
+      .eq('key', SUPABASE_DATA_KEY)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    if (data && data.value) {
+      const saved = data.value;
+      state.tasks = saved.tasks || [];
+      state.records = saved.records || {};
+      state.redemptions = saved.redemptions || [];
+      state.tasks.forEach(t => {
+        if (!t.validity) t.validity = { type: 'permanent' };
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        tasks: state.tasks,
+        records: state.records,
+        redemptions: state.redemptions
+      }));
+      if (saved.updatedAt) {
+        localStorage.setItem('yoyo_tracker_sync_time', saved.updatedAt);
+      }
+      return true;
+    }
+  } catch (e) {
+    console.error('Supabase load error:', e);
+  }
+  return false;
+}
+
+async function migrateToSupabase() {
+  if (!supabaseClient) return;
+  if (state.tasks.length === 0 && Object.keys(state.records).length === 0 && state.redemptions.length === 0) return;
+  try {
+    await saveToSupabase();
+    showToast('数据已同步到云端');
+  } catch (e) {
+    console.error('Migration failed:', e);
+  }
+}
+
+async function saveToSupabase() {
+  if (!supabaseClient || isSyncing) {
+    pendingSave = true;
+    return false;
+  }
+  isSyncing = true;
+  try {
+    const ts = now();
+    const payload = {
+      key: SUPABASE_DATA_KEY,
+      value: {
+        tasks: state.tasks,
+        records: state.records,
+        redemptions: state.redemptions,
+        updatedAt: ts
+      }
+    };
+    localStorage.setItem('yoyo_tracker_sync_time', ts);
+    const { error } = await supabaseClient
+      .from('app_data')
+      .upsert(payload, { onConflict: 'key' });
+
+    if (error) throw error;
+    pendingSave = false;
+    return true;
+  } catch (e) {
+    console.error('Supabase save error:', e);
+    pendingSave = true;
+    return false;
+  } finally {
+    isSyncing = false;
+    if (pendingSave) {
+      scheduleSaveToCloud();
+    }
+  }
+}
+
+function scheduleSaveToCloud() {
+  if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(() => {
+    saveToSupabase();
+  }, 1200);
+}
+
+function loadData() {
+  loadLocalCache();
+  if (initSupabase()) {
+    loadFromSupabase().then(success => {
+      if (success) {
+        refreshCurrentPage();
+      } else {
+        migrateToSupabase();
+      }
+    });
+    setupRealtime();
+  }
 }
 
 function saveData() {
@@ -1196,10 +1332,13 @@ function saveData() {
     records: state.records,
     redemptions: state.redemptions
   }));
+  if (supabaseClient) {
+    scheduleSaveToCloud();
+  }
 }
 
 function initDemoData() {
-  if (state.tasks.length === 0) {
+  if (state.tasks.length === 0 && (cloudDataStatus === 'empty' || cloudDataStatus === 'error')) {
     state.tasks = [
       { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: now(), validity: { type: 'permanent' } },
       { id: genId(), name: '数学练习', points: 5, createdAt: now(), validity: { type: 'permanent' } },
@@ -1210,6 +1349,57 @@ function initDemoData() {
     ];
     saveData();
   }
+}
+
+function refreshCurrentPage() {
+  if (!state.currentRole) return;
+  const activePage = document.querySelector('.page.active');
+  if (!activePage) return;
+  const pageId = activePage.id;
+  if (pageId === 'page-home') renderHome();
+  else if (pageId === 'page-day') showDayDetail(state.selectedDate);
+  else if (pageId === 'page-tasks') renderTaskManage();
+  else if (pageId === 'page-redemption') renderRedemptions();
+  else if (pageId === 'page-statistics') renderStatistics();
+  else if (pageId === 'page-profile') renderProfile();
+}
+
+function setupRealtime() {
+  if (!supabaseClient || syncChannel) return;
+  syncChannel = supabaseClient
+    .channel('app_data_changes')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'app_data',
+      filter: `key=eq.${SUPABASE_DATA_KEY}`
+    }, (payload) => {
+      if (payload.new && payload.new.value) {
+        const saved = payload.new.value;
+        const cloudUpdated = saved.updatedAt;
+        const localUpdated = localStorage.getItem('yoyo_tracker_sync_time');
+        if (cloudUpdated && localUpdated && cloudUpdated <= localUpdated) {
+          return;
+        }
+        state.tasks = saved.tasks || [];
+        state.records = saved.records || {};
+        state.redemptions = saved.redemptions || [];
+        state.tasks.forEach(t => {
+          if (!t.validity) t.validity = { type: 'permanent' };
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          tasks: state.tasks,
+          records: state.records,
+          redemptions: state.redemptions
+        }));
+        if (cloudUpdated) {
+          localStorage.setItem('yoyo_tracker_sync_time', cloudUpdated);
+        }
+        refreshCurrentPage();
+        showToast('数据已同步');
+      }
+    })
+    .subscribe();
 }
 
 // ===================== UTILS =====================
@@ -2283,9 +2473,32 @@ function checkUrlRole() {
 }
 
 // ===================== INIT =====================
-function init() {
-  loadData();
+async function init() {
   renderRoleSelect();
+
+  const hasLocal = loadLocalCache();
+  const supabaseReady = initSupabase();
+
+  if (supabaseReady) {
+    setupRealtime();
+    if (!hasLocal) {
+      const loadingEl = document.getElementById('init-loading');
+      if (loadingEl) loadingEl.style.display = 'flex';
+      const loadPromise = loadFromSupabase();
+      const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(false), 6000));
+      const hasCloud = await Promise.race([loadPromise, timeoutPromise]);
+      if (loadingEl) loadingEl.style.display = 'none';
+      cloudDataStatus = hasCloud ? 'loaded' : 'empty';
+    } else {
+      cloudDataStatus = 'loaded';
+      loadFromSupabase().then(success => {
+        if (success) refreshCurrentPage();
+        else migrateToSupabase();
+      });
+    }
+  } else {
+    cloudDataStatus = hasLocal ? 'loaded' : 'empty';
+  }
 
   // URL param takes priority
   if (checkUrlRole()) return;
