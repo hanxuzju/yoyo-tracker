@@ -365,6 +365,16 @@
       font-weight: 600;
       color: var(--danger);
     }
+    .redemption-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .redemption-actions .btn {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+    }
     .balance-bar {
       background: linear-gradient(135deg, var(--success) 0%, #4CD97B 100%);
       color: #fff;
@@ -1057,6 +1067,30 @@
       <input class="form-input" id="input-redeem-date" type="date">
     </div>
     <button class="btn btn-primary btn-block" onclick="addRedemption()">确认兑换</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-redemption">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">编辑兑换</span>
+      <button class="modal-close" onclick="closeModal('modal-edit-redemption')">&times;</button>
+    </div>
+    <input type="hidden" id="edit-redeem-id">
+    <div class="form-group">
+      <label class="form-label">兑换权益</label>
+      <input class="form-input" id="edit-redeem-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">消耗积分</label>
+      <input class="form-input" id="edit-redeem-points" type="number">
+    </div>
+    <div class="form-group">
+      <label class="form-label">日期</label>
+      <input class="form-input" id="edit-redeem-date" type="date">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveEditRedemption()">保存</button>
+    <button class="btn btn-danger btn-block mt-1" onclick="deleteEditRedemption()">删除记录</button>
   </div>
 </div>
 
@@ -2046,21 +2080,33 @@ function renderRedemptions() {
     return;
   }
 
-  // Sort by date desc
-  const sorted = [...state.redemptions].sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Sort by updated/created time desc (newest first)
+  const sorted = [...state.redemptions].sort((a, b) => {
+    const ta = new Date(a.updatedAt || a.createdAt);
+    const tb = new Date(b.updatedAt || b.createdAt);
+    return tb - ta;
+  });
+
+  const currentRoleName = getRoleById(state.currentRole).name;
 
   container.innerHTML = '';
   sorted.forEach(item => {
+    const timeStr = new Date(item.updatedAt || item.createdAt).toLocaleString('zh-CN', {
+      month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    const canEdit = isAdmin() || item.createdBy === currentRoleName;
+
     const el = document.createElement('div');
     el.className = 'redemption-item';
     el.innerHTML = `
       <div class="flex-between">
         <div>
           <div class="redemption-title">${item.name}</div>
-          <div class="redemption-meta">${item.date} · 兑换人：${item.createdBy}</div>
+          <div class="redemption-meta">${item.date} · 兑换人：${item.createdBy} · 更新于 ${timeStr}</div>
         </div>
         <div class="redemption-points">-${item.points}</div>
       </div>
+      ${canEdit ? `<div class="redemption-actions"><button class="btn btn-outline" onclick="openEditRedemption('${item.id}')">编辑</button></div>` : ''}
     `;
     container.appendChild(el);
   });
@@ -2080,13 +2126,15 @@ function addRedemption() {
   }
 
   const role = getRoleById(state.currentRole);
+  const ts = now();
   state.redemptions.push({
     id: genId(),
     name,
     points,
     date,
     createdBy: role.name,
-    createdAt: now()
+    createdAt: ts,
+    updatedAt: ts
   });
 
   saveData();
@@ -2095,6 +2143,77 @@ function addRedemption() {
   document.getElementById('input-redeem-points').value = '10';
   renderRedemptions();
   showToast('兑换成功');
+}
+
+function openEditRedemption(id) {
+  const item = state.redemptions.find(r => r.id === id);
+  if (!item) return;
+  const currentRoleName = getRoleById(state.currentRole).name;
+  if (!isAdmin() && item.createdBy !== currentRoleName) {
+    showToast('无权编辑此记录');
+    return;
+  }
+  document.getElementById('edit-redeem-id').value = item.id;
+  document.getElementById('edit-redeem-name').value = item.name;
+  document.getElementById('edit-redeem-points').value = item.points;
+  document.getElementById('edit-redeem-date').value = item.date;
+  openModal('modal-edit-redemption');
+}
+
+function saveEditRedemption() {
+  const id = document.getElementById('edit-redeem-id').value;
+  const name = document.getElementById('edit-redeem-name').value.trim();
+  const points = parseInt(document.getElementById('edit-redeem-points').value) || 0;
+  const date = document.getElementById('edit-redeem-date').value;
+  if (!name) { showToast('请输入兑换权益'); return; }
+  if (!date) { showToast('请选择日期'); return; }
+
+  const item = state.redemptions.find(r => r.id === id);
+  if (!item) return;
+
+  const currentRoleName = getRoleById(state.currentRole).name;
+  if (!isAdmin() && item.createdBy !== currentRoleName) {
+    showToast('无权编辑此记录');
+    return;
+  }
+
+  // Recalculate balance if points changed
+  const oldPoints = item.points;
+  const balance = getBalance() + oldPoints;
+  if (points > balance) {
+    showToast(`积分不足，当前余额 ${balance}`);
+    return;
+  }
+
+  item.name = name;
+  item.points = points;
+  item.date = date;
+  item.updatedAt = now();
+
+  saveData();
+  closeModal('modal-edit-redemption');
+  renderRedemptions();
+  showToast('已保存');
+}
+
+function deleteEditRedemption() {
+  const id = document.getElementById('edit-redeem-id').value;
+  const item = state.redemptions.find(r => r.id === id);
+  if (!item) return;
+
+  const currentRoleName = getRoleById(state.currentRole).name;
+  if (!isAdmin() && item.createdBy !== currentRoleName) {
+    showToast('无权删除此记录');
+    return;
+  }
+
+  if (!confirm(`确定要删除「${item.name}」的兑换记录吗？对应的 ${item.points} 积分将返还。`)) return;
+
+  state.redemptions = state.redemptions.filter(r => r.id !== id);
+  saveData();
+  closeModal('modal-edit-redemption');
+  renderRedemptions();
+  showToast('已删除');
 }
 
 // ===================== SHARE LINKS =====================
