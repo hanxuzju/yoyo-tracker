@@ -928,7 +928,7 @@
       <span>分享链接给家庭成员</span>
       <span>&#8250;</span>
     </div>
-    <div class="list-item flex-between" onclick="switchRole()">
+    <div class="list-item flex-between" onclick="switchRole()" id="profile-switch-row">
       <span>切换身份</span>
       <span>&#8250;</span>
     </div>
@@ -938,7 +938,7 @@
     <button class="btn btn-outline btn-block" onclick="triggerImport()">&#128194; 导入数据</button>
     <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importData(this)">
   </div>
-  <div class="card" style="margin-top:0;">
+  <div class="card" style="margin-top:0;" id="profile-reset-card">
     <div class="list-item flex-between danger-zone" onclick="resetData()">
       <span>重置所有数据</span>
       <span>&#8250;</span>
@@ -2466,6 +2466,10 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, 
 function renderProfile() {
   const role = getRoleById(state.currentRole);
   document.getElementById('profile-role-name').textContent = `${role.name} · ${role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员'}`;
+  const switchRow = document.getElementById('profile-switch-row');
+  const resetCard = document.getElementById('profile-reset-card');
+  if (switchRow) switchRow.style.display = isAdmin() ? 'flex' : 'none';
+  if (resetCard) resetCard.style.display = isAdmin() ? 'block' : 'none';
 }
 
 function resetData() {
