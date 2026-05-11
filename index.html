@@ -2119,6 +2119,7 @@ function addRedemption() {
   const date = document.getElementById('input-redeem-date').value;
   if (!name) { showToast('请输入兑换权益'); return; }
   if (!date) { showToast('请选择日期'); return; }
+  if (date > todayStr()) { showToast('兑换日期不能选择未来日期'); return; }
 
   const balance = getBalance();
   if (points > balance) {
@@ -2169,6 +2170,7 @@ function saveEditRedemption() {
   const date = document.getElementById('edit-redeem-date').value;
   if (!name) { showToast('请输入兑换权益'); return; }
   if (!date) { showToast('请选择日期'); return; }
+  if (date > todayStr()) { showToast('兑换日期不能选择未来日期'); return; }
 
   const item = state.redemptions.find(r => r.id === id);
   if (!item) return;
