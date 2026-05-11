@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>YOYO 学习任务记录</title>
+  <style>
+    :root {
+      --primary: #5B8DEF;
+      --primary-dark: #4A7DE0;
+      --secondary: #FFD93D;
+      --success: #6BCB77;
+      --danger: #FF6B6B;
+      --warning: #FFA502;
+      --bg: #F5F7FA;
+      --card: #FFFFFF;
+      --text: #2D3436;
+      --text-light: #636E72;
+      --border: #E1E8ED;
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { font-size: 16px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: calc(70px + env(safe-area-inset-bottom));
+      line-height: 1.5;
+    }
+
+    /* Layout */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      padding: 24px 20px 32px;
+      border-radius: 0 0 var(--radius) var(--radius);
+      position: relative;
+      overflow: hidden;
+    }
+    .app-header::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; right: -20px;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+    .app-header h1 { font-size: 1.25rem; font-weight: 600; }
+    .app-header .sub { font-size: 0.8125rem; opacity: 0.85; margin-top: 4px; }
+
+    /* Role selector */
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 20px;
+    }
+    .role-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 8px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 2px solid transparent;
+    }
+    .role-card:active { transform: scale(0.96); }
+    .role-card .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      background: var(--bg);
+    }
+    .role-card .name { font-size: 0.9375rem; font-weight: 500; }
+    .role-card .tag {
+      font-size: 0.6875rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+    .role-card.admin { border-color: var(--warning); }
+    .role-card.admin .avatar { background: #FFF3CD; }
+    .role-card.child { border-color: var(--secondary); }
+    .role-card.child .avatar { background: #FFF9DB; }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin: 0 16px 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 18px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title { font-size: 1rem; font-weight: 600; }
+    .card-body { padding: 14px 18px 18px; }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 16px;
+    }
+    .stat-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 8px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .stat-box .value {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .stat-box .label {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+    .stat-box .value.warning { color: var(--warning); }
+    .stat-box .value.success { color: var(--success); }
+    .stat-box .value.danger { color: var(--danger); }
+
+    /* Calendar */
+    .calendar-card { padding: 16px; }
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .cal-header button {
+      background: var(--bg);
+      border: none;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 1.125rem;
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cal-header .month-label {
+      font-size: 1.0625rem;
+      font-weight: 600;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .cal-weekday {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      padding: 6px 0;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      cursor: pointer;
+      position: relative;
+      background: var(--bg);
+      transition: background 0.15s;
+    }
+    .cal-day.other-month { color: #B2BEC3; background: transparent; }
+    .cal-day.today { background: #E8F0FE; font-weight: 600; color: var(--primary); }
+    .cal-day.selected { background: var(--primary); color: #fff; }
+    .cal-day .score {
+      font-size: 0.625rem;
+      margin-top: 2px;
+      font-weight: 600;
+    }
+    .cal-day.selected .score { color: rgba(255,255,255,0.9); }
+    .cal-day .dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--success);
+      position: absolute;
+      bottom: 3px;
+    }
+    .cal-day.disabled {
+      color: #B2BEC3;
+      cursor: not-allowed;
+      background: transparent;
+    }
+    .cal-day.disabled .score { color: #B2BEC3; }
+
+    /* Task list */
+    .task-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item { cursor: pointer; }
+    .task-item:active { background: rgba(91,141,239,0.04); }
+    .task-checkbox {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      margin-right: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
+      transition: all 0.15s;
+      font-size: 0.875rem;
+      color: transparent;
+      pointer-events: none;
+    }
+    .task-checkbox.checked {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    .task-info { flex: 1; min-width: 0; }
+    .task-name { font-size: 0.9375rem; font-weight: 500; }
+    .task-meta {
+      font-size: 0.6875rem;
+      color: var(--text-light);
+      margin-top: 3px;
+    }
+    .task-points {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-left: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+      z-index: 100;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+    }
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 4px 0;
+      cursor: pointer;
+      color: var(--text-light);
+      font-size: 0.6875rem;
+      transition: color 0.15s;
+    }
+    .nav-item .icon {
+      font-size: 1.375rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .nav-item.active { color: var(--primary); font-weight: 500; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-block { width: 100%; }
+    .btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+
+    /* Forms */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      background: var(--card);
+      color: var(--text);
+      -webkit-appearance: none;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Lists */
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .list-item:last-child { border-bottom: none; }
+
+    /* Redemption */
+    .redemption-item {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .redemption-item:last-child { border-bottom: none; }
+    .redemption-title { font-size: 0.9375rem; font-weight: 500; }
+    .redemption-meta {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+    .redemption-points {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--danger);
+    }
+    .balance-bar {
+      background: linear-gradient(135deg, var(--success) 0%, #4CD97B 100%);
+      color: #fff;
+      padding: 18px 20px;
+      border-radius: var(--radius);
+      margin: 16px;
+      text-align: center;
+    }
+    .balance-bar .num {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .balance-bar .label { font-size: 0.875rem; opacity: 0.9; margin-top: 4px; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-light);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: var(--card);
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.25s ease-out;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .modal-title { font-size: 1.0625rem; font-weight: 600; }
+    .modal-close {
+      background: none; border: none;
+      font-size: 1.5rem; color: var(--text-light);
+      cursor: pointer;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Share links */
+    .share-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin: 0 16px 10px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .share-card .info { flex: 1; }
+    .share-card .role-name { font-weight: 500; }
+    .share-card .link-text {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      z-index: 300;
+      display: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { display: block; animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Section header */
+    .section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-light);
+      padding: 16px 16px 8px;
+    }
+
+    /* Animations */
+    .fade-in { animation: fadeIn 0.25s ease; }
+
+    /* Day detail header */
+    .day-detail-header {
+      background: var(--card);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .day-detail-header .date { font-size: 1.125rem; font-weight: 600; }
+    .day-detail-header .day-score {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Swipe back hint */
+    .back-btn {
+      background: none; border: none;
+      font-size: 1rem;
+      color: var(--primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    .danger-zone { color: var(--danger); font-size: 0.8125rem; }
+
+    .flex-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mt-1 { margin-top: 8px; }
+    .mt-2 { margin-top: 16px; }
+    .mb-1 { margin-bottom: 8px; }
+    .p-2 { padding: 16px; }
+
+    .text-sm { font-size: 0.8125rem; }
+    .text-xs { font-size: 0.75rem; }
+    .text-light { color: var(--text-light); }
+    .font-bold { font-weight: 600; }
+
+    /* Welcome banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, #FFF9DB 0%, #FFF3CD 100%);
+      border-left: 4px solid var(--secondary);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin: 0 16px 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      animation: slideDown 0.4s ease;
+    }
+    .welcome-banner.show { display: flex; }
+    .welcome-banner .icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .welcome-banner .text {
+      flex: 1;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .welcome-banner .close {
+      background: none;
+      border: none;
+      font-size: 1.125rem;
+      color: var(--text-light);
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0 0 0 6px;
+      line-height: 1;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ===================== ROLE SELECT PAGE ===================== -->
+<div class="page active" id="page-role">
+  <div class="app-header">
+    <h1>YOYO 学习任务记录</h1>
+    <div class="sub">选择您的身份进入系统</div>
+  </div>
+  <div class="section-title">管理员</div>
+  <div class="role-grid" id="role-grid-admin"></div>
+  <div class="section-title">家庭成员</div>
+  <div class="role-grid" id="role-grid-family"></div>
+  <div class="section-title">孩子</div>
+  <div class="role-grid" id="role-grid-child"></div>
+</div>
+
+<!-- ===================== CALENDAR HOME PAGE ===================== -->
+<div class="page" id="page-home">
+  <div class="app-header">
+    <h1 id="home-greeting">欢迎</h1>
+    <div class="sub" id="home-role">管理员</div>
+  </div>
+
+  <div class="welcome-banner" id="welcome-banner">
+    <span class="icon" id="welcome-icon">💬</span>
+    <span class="text" id="welcome-text"></span>
+    <button class="close" onclick="dismissWelcome()">&times;</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="value" id="stat-total">0</div>
+      <div class="label">累计积分</div>
+    </div>
+    <div class="stat-box">
+      <div class="value warning" id="stat-month">0</div>
+      <div class="label">本月积分</div>
+    </div>
+    <div class="stat-box">
+      <div class="value success" id="stat-week">0</div>
+      <div class="label">本周积分</div>
+    </div>
+  </div>
+
+  <div class="stats-row" style="grid-template-columns: 1fr 1fr;">
+    <div class="stat-box" style="cursor: pointer;" onclick="showPage('page-redemption')" id="stat-box-spent">
+      <div class="value danger" id="stat-spent">0</div>
+      <div class="label">累计消耗 &#8250;</div>
+    </div>
+    <div class="stat-box">
+      <div class="value" id="stat-balance" style="color: var(--primary);">0</div>
+      <div class="label">当前余额</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">日历</span>
+      <span class="text-sm text-light">点击日期查看详情</span>
+    </div>
+    <div class="calendar-card">
+      <div class="cal-header">
+        <button onclick="changeMonth(-1)">&#8249;</button>
+        <span class="month-label" id="cal-month-label"></span>
+        <button onclick="changeMonth(1)">&#8250;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DAY DETAIL PAGE ===================== -->
+<div class="page" id="page-day">
+  <div class="day-detail-header">
+    <button class="back-btn" onclick="showPage('page-home')">&#8249; 返回</button>
+    <span class="date" id="day-date"></span>
+    <span class="day-score" id="day-score"></span>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-header">
+      <span class="card-title">任务清单</span>
+      <span class="text-sm text-light">点击圆圈标记完成</span>
+    </div>
+    <div class="card-body" id="day-tasks"></div>
+  </div>
+</div>
+
+<!-- ===================== TASK MANAGE PAGE ===================== -->
+<div class="page" id="page-tasks">
+  <div class="app-header">
+    <h1>任务管理</h1>
+    <div class="sub">管理学习任务及分值</div>
+  </div>
+  <div class="p-2">
+    <button class="btn btn-primary btn-block" onclick="openModal('modal-add-task')">+ 添加新任务</button>
+  </div>
+  <div class="card" id="task-manage-list"></div>
+</div>
+
+<!-- ===================== REDEMPTION PAGE ===================== -->
+<div class="page" id="page-redemption">
+  <div class="app-header">
+    <h1>积分兑换</h1>
+    <div class="sub">管理积分兑换记录</div>
+  </div>
+  <div class="balance-bar">
+    <div class="num" id="balance-num">0</div>
+    <div class="label">当前积分余额</div>
+  </div>
+  <div class="flex-between" style="padding: 0 16px 10px;">
+    <span class="section-title" style="padding:0;">兑换记录</span>
+    <button class="btn btn-sm btn-primary" id="btn-add-redemption" onclick="openModal('modal-add-redemption')">+ 新增兑换</button>
+  </div>
+  <div class="card" id="redemption-list"></div>
+</div>
+
+<!-- ===================== SHARE PAGE ===================== -->
+<div class="page" id="page-share">
+  <div class="app-header">
+    <h1>分享链接</h1>
+    <div class="sub">复制链接发送给家庭成员</div>
+  </div>
+  <div id="share-links"></div>
+  <div class="p-2 text-sm text-light">
+    提示：将对应角色的链接通过微信/钉钉发送给家庭成员，他们打开后将以对应身份进入系统。
+  </div>
+  <div class="card" style="margin: 0 16px 16px; padding: 14px 16px;">
+    <div class="text-sm" style="color: var(--warning); font-weight: 500;">⚠️ 使用须知</div>
+    <div class="text-sm text-light mt-1">
+      如需通过微信/钉钉分享链接给其他家庭成员使用，请先将此文件上传至网页服务器（如阿里云OSS、腾讯云COS、GitHub Pages等），然后使用服务器上的链接进行分享。直接发送本地文件路径无法在其他设备上打开。
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PROFILE PAGE ===================== -->
+<div class="page" id="page-profile">
+  <div class="app-header">
+    <h1>我的</h1>
+    <div class="sub" id="profile-role-name"></div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="list-item flex-between" onclick="showPage('page-share')" id="profile-share-row">
+      <span>分享链接给家庭成员</span>
+      <span>&#8250;</span>
+    </div>
+    <div class="list-item flex-between" onclick="switchRole()">
+      <span>切换身份</span>
+      <span>&#8250;</span>
+    </div>
+    <div class="list-item flex-between danger-zone" onclick="resetData()">
+      <span>重置所有数据</span>
+      <span>&#8250;</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== BOTTOM NAV ===================== -->
+<div class="bottom-nav" id="bottom-nav" style="display:none;">
+  <div class="nav-item active" data-page="page-home" onclick="showPage('page-home')">
+    <span class="icon">&#128197;</span>
+    日历
+  </div>
+  <div class="nav-item" data-page="page-redemption" onclick="showPage('page-redemption')">
+    <span class="icon">&#127873;</span>
+    兑换
+  </div>
+  <div class="nav-item" data-page="page-tasks" id="nav-tasks" onclick="showPage('page-tasks')">
+    <span class="icon">&#128203;</span>
+    任务
+  </div>
+  <div class="nav-item" data-page="page-profile" onclick="showPage('page-profile')">
+    <span class="icon">&#128100;</span>
+    我的
+  </div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal-overlay" id="modal-add-task">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">添加任务</span>
+      <button class="modal-close" onclick="closeModal('modal-add-task')">&times;</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">任务名称</label>
+      <input class="form-input" id="input-task-name" placeholder="例如：晨读20分钟">
+    </div>
+    <div class="form-group">
+      <label class="form-label">分值（积分）</label>
+      <input class="form-input" id="input-task-points" type="number" placeholder="例如：5" value="5">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="addTask()">保存</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-task">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">编辑任务</span>
+      <button class="modal-close" onclick="closeModal('modal-edit-task')">&times;</button>
+    </div>
+    <input type="hidden" id="edit-task-id">
+    <div class="form-group">
+      <label class="form-label">任务名称</label>
+      <input class="form-input" id="edit-task-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">分值（积分）</label>
+      <input class="form-input" id="edit-task-points" type="number">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveEditTask()">保存</button>
+    <button class="btn btn-danger btn-block mt-1" onclick="deleteEditTask()">删除任务</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-redemption">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">新增兑换</span>
+      <button class="modal-close" onclick="closeModal('modal-add-redemption')">&times;</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">兑换权益</label>
+      <input class="form-input" id="input-redeem-name" placeholder="例如：看动画片30分钟">
+    </div>
+    <div class="form-group">
+      <label class="form-label">消耗积分</label>
+      <input class="form-input" id="input-redeem-points" type="number" placeholder="例如：20" value="10">
+    </div>
+    <div class="form-group">
+      <label class="form-label">日期</label>
+      <input class="form-input" id="input-redeem-date" type="date">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="addRedemption()">确认兑换</button>
+  </div>
+</div>
+
+<script>
+// ===================== DATA MODEL =====================
+const ROLES = [
+  { id: 'admin', name: '妈妈', type: 'admin', avatar: '👩' },
+  { id: 'dad', name: '爸爸', type: 'parent', avatar: '👨' },
+  { id: 'grandpa1', name: '爷爷', type: 'elder', avatar: '👴' },
+  { id: 'grandma1', name: '奶奶', type: 'elder', avatar: '👵' },
+  { id: 'grandpa2', name: '姥爷', type: 'elder', avatar: '👴' },
+  { id: 'grandma2', name: '姥姥', type: 'elder', avatar: '👵' },
+  { id: 'yoyo', name: 'YOYO', type: 'child', avatar: '👶' }
+];
+
+const STORAGE_KEY = 'yoyo_tracker_v1';
+const ROLE_KEY = 'yoyo_tracker_role';
+const WELCOME_KEY_PREFIX = 'yoyo_welcome_';
+
+const WELCOME_MSGS = {
+  admin: [
+    "今天也辛苦啦，YOYO有你真的很幸福 💕",
+    "你是这个家最温暖的支柱，谢谢你",
+    "教育路上，你的用心YOYO都看在眼里",
+    "又是充满爱的一天，和YOYO一起加油",
+    "妈妈的坚持，是YOYO最好的榜样",
+    "谢谢你为YOYO的每一天操心受累",
+    "有你在，YOYO的学习之路从不孤单"
+  ],
+  parent: [
+    "谢谢您抽出时间陪伴YOYO，这份心意很珍贵",
+    "有您在，YOYO的学习之路更温暖",
+    "您的陪伴是给孩子最好的礼物",
+    "每一次记录，都是您对YOYO爱的见证",
+    "谢谢您守护YOYO成长的每一天",
+    "孩子因为有您的参与，学习更有动力了",
+    "您的关心，让YOYO知道她不是一个人在努力",
+    "谢谢您成为YOYO成长路上的守护者"
+  ],
+  elder: [
+    "谢谢您抽出时间陪伴YOYO，这份心意很珍贵",
+    "有您在，YOYO的学习之路更温暖",
+    "您的陪伴是给孩子最好的礼物",
+    "每一次记录，都是您对YOYO爱的见证",
+    "谢谢您守护YOYO成长的每一天",
+    "孩子因为有您的参与，学习更有动力了",
+    "您的关心，让YOYO知道她不是一个人在努力",
+    "谢谢您成为YOYO成长路上的守护者"
+  ],
+  child: [
+    "今天又是充满可能的一天，相信自己！",
+    "YOYO最棒了，坚持就是胜利 💪",
+    "每一份努力，都会让你变得更强大",
+    "你是自己学习的小主人，继续加油",
+    "今天也要做闪闪发光的小太阳 ☀️",
+    "勇敢的小战士，新一天的挑战来啦",
+    "你的自律会让你走得更远，YOYO真厉害",
+    "相信自己，你可以做到任何想做的事"
+  ]
+};
+
+const ENCOURAGE_MSGS = [
+  "太棒了！又完成一项，YOYO真厉害 👏",
+  "一分耕耘一分收获，继续加油",
+  "你的努力正在闪闪发光 ✨",
+  "坚持的力量，你正在证明它",
+  "好样的！自律的小榜样",
+  "每一次完成，都是向更好的自己迈进",
+  "YOYO的努力，全家都为你骄傲",
+  "积少成多，你的坚持一定会有回报",
+  "今天的你，比昨天更优秀了一点",
+  "学习小达人，继续保持 🌟",
+  "这就是自律的力量，YOYO太棒了",
+  "完成了！给自己一个大大的赞 👍",
+  "你认真的样子，真的很酷",
+  "又前进了一步，YOYO加油",
+  "坚持下来的你，已经赢了一半"
+];
+
+let state = {
+  currentRole: null,
+  tasks: [],
+  records: {}, // { "2026-05-11": { "taskId": { completed: true, lastEditor: "妈妈", lastEditedAt: "..." } } }
+  redemptions: [],
+  currentMonth: new Date()
+};
+
+// ===================== STORAGE =====================
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      state.tasks = saved.tasks || [];
+      state.records = saved.records || {};
+      state.redemptions = saved.redemptions || [];
+    }
+  } catch (e) { console.error(e); }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    tasks: state.tasks,
+    records: state.records,
+    redemptions: state.redemptions
+  }));
+}
+
+function initDemoData() {
+  if (state.tasks.length === 0) {
+    state.tasks = [
+      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: now() },
+      { id: genId(), name: '数学练习', points: 5, createdAt: now() },
+      { id: genId(), name: '练字', points: 3, createdAt: now() },
+      { id: genId(), name: '阅读课外书', points: 5, createdAt: now() },
+      { id: genId(), name: '体育运动', points: 3, createdAt: now() },
+      { id: genId(), name: '整理书包/房间', points: 2, createdAt: now() }
+    ];
+    saveData();
+  }
+}
+
+// ===================== UTILS =====================
+function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
+function now() { return new Date().toISOString(); }
+function fmtDate(d) {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function todayStr() { return fmtDate(new Date()); }
+
+function getRoleById(id) { return ROLES.find(r => r.id === id); }
+function isAdmin() { return state.currentRole === 'admin'; }
+function isChild() { return state.currentRole === 'yoyo'; }
+
+function getRoleType(roleId) {
+  const role = getRoleById(roleId);
+  if (!role) return 'parent';
+  if (role.type === 'admin') return 'admin';
+  if (role.type === 'child') return 'child';
+  return 'parent'; // dad is parent, elders share parent messages
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getWelcomeMsg(roleId) {
+  const type = getRoleType(roleId);
+  const list = WELCOME_MSGS[type] || WELCOME_MSGS.parent;
+  return pickRandom(list);
+}
+
+function getEncourageMsg() {
+  return pickRandom(ENCOURAGE_MSGS);
+}
+
+function welcomeKey() {
+  return WELCOME_KEY_PREFIX + todayStr() + '_' + state.currentRole;
+}
+
+function hasShownWelcomeToday() {
+  try {
+    return localStorage.getItem(welcomeKey()) === '1';
+  } catch (e) { return false; }
+}
+
+function markWelcomeShown() {
+  try { localStorage.setItem(welcomeKey(), '1'); } catch (e) {}
+}
+
+function dismissWelcome() {
+  const banner = document.getElementById('welcome-banner');
+  if (banner) banner.classList.remove('show');
+}
+
+function showWelcomeIfNeeded() {
+  if (!state.currentRole) return;
+  if (hasShownWelcomeToday()) {
+    dismissWelcome();
+    return;
+  }
+  const msg = getWelcomeMsg(state.currentRole);
+  const banner = document.getElementById('welcome-banner');
+  const text = document.getElementById('welcome-text');
+  const icon = document.getElementById('welcome-icon');
+  if (banner && text) {
+    text.textContent = msg;
+    icon.textContent = isChild() ? '💪' : '💕';
+    banner.classList.add('show');
+    markWelcomeShown();
+  }
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+  // Set default date for redemption
+  if (id === 'modal-add-redemption') {
+    document.getElementById('input-redeem-date').value = todayStr();
+  }
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// ===================== PAGE NAVIGATION =====================
+function showPage(pageId) {
+  // Permission checks
+  if (pageId === 'page-tasks' && !isAdmin()) {
+    showToast('只有管理员可以管理任务');
+    return;
+  }
+  if (pageId === 'page-share' && !isAdmin()) {
+    showToast('只有管理员可以分享链接');
+    return;
+  }
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const nav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+  if (nav) nav.classList.add('active');
+
+  if (pageId === 'page-home') renderHome();
+  if (pageId === 'page-tasks') renderTaskManage();
+  if (pageId === 'page-redemption') renderRedemptions();
+  if (pageId === 'page-share') renderShareLinks();
+  if (pageId === 'page-profile') renderProfile();
+
+  window.scrollTo(0, 0);
+}
+
+// ===================== ROLE SELECTION =====================
+function renderRoleSelect() {
+  const adminGrid = document.getElementById('role-grid-admin');
+  const familyGrid = document.getElementById('role-grid-family');
+  const childGrid = document.getElementById('role-grid-child');
+
+  adminGrid.innerHTML = '';
+  familyGrid.innerHTML = '';
+  childGrid.innerHTML = '';
+
+  ROLES.forEach(role => {
+    const card = document.createElement('div');
+    card.className = `role-card ${role.type}`;
+    card.innerHTML = `
+      <div class="avatar">${role.avatar}</div>
+      <div class="name">${role.name}</div>
+      <div class="tag">${role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员'}</div>
+    `;
+    card.onclick = () => selectRole(role.id);
+
+    if (role.type === 'admin') adminGrid.appendChild(card);
+    else if (role.type === 'child') childGrid.appendChild(card);
+    else familyGrid.appendChild(card);
+  });
+}
+
+function selectRole(roleId) {
+  state.currentRole = roleId;
+  try { localStorage.setItem(ROLE_KEY, roleId); } catch (e) {}
+  const role = getRoleById(roleId);
+
+  document.getElementById('home-greeting').textContent = `欢迎，${role.name}`;
+  document.getElementById('home-role').textContent = role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员';
+
+  // Toggle admin-only nav
+  document.getElementById('nav-tasks').style.display = isAdmin() ? 'block' : 'none';
+  document.getElementById('profile-share-row').style.display = isAdmin() ? 'flex' : 'none';
+  document.getElementById('btn-add-redemption').style.display = isChild() ? 'none' : 'inline-flex';
+  document.getElementById('bottom-nav').style.display = 'flex';
+
+  initDemoData();
+  showPage('page-home');
+}
+
+function switchRole() {
+  state.currentRole = null;
+  try { localStorage.removeItem(ROLE_KEY); } catch (e) {}
+  document.getElementById('bottom-nav').style.display = 'none';
+  showPage('page-role');
+}
+
+// ===================== HOME / CALENDAR =====================
+function renderHome() {
+  renderStats();
+  renderCalendar();
+  showWelcomeIfNeeded();
+}
+
+function renderStats() {
+  const total = getTotalScore();
+  const month = getMonthScore(state.currentMonth);
+  const week = getWeekScore(new Date());
+  const spent = getTotalRedeemed();
+  const balance = getBalance();
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-month').textContent = month;
+  document.getElementById('stat-week').textContent = week;
+  document.getElementById('stat-spent').textContent = spent;
+  document.getElementById('stat-balance').textContent = balance;
+}
+
+function changeMonth(delta) {
+  const d = new Date(state.currentMonth);
+  d.setMonth(d.getMonth() + delta);
+  state.currentMonth = d;
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const year = state.currentMonth.getFullYear();
+  const month = state.currentMonth.getMonth();
+  document.getElementById('cal-month-label').textContent = `${year}年 ${month + 1}月`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  weekdays.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'cal-weekday';
+    el.textContent = w;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = lastDay.getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  // Previous month filler
+  for (let i = startOffset - 1; i >= 0; i--) {
+    const day = daysInPrevMonth - i;
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month';
+    el.textContent = day;
+    grid.appendChild(el);
+  }
+
+  // Current month
+  const today = todayStr();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const score = getDayScore(dateStr);
+    const hasRecords = !!state.records[dateStr];
+    const isFuture = dateStr > today;
+
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    if (dateStr === today) el.classList.add('today');
+    if (state.selectedDate === dateStr) el.classList.add('selected');
+    if (isFuture) el.classList.add('disabled');
+    el.innerHTML = `<div>${day}</div>` + (score > 0 && !isFuture ? `<div class="score">+${score}</div>` : '');
+    if (hasRecords && !isFuture) {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      el.appendChild(dot);
+    }
+    if (!isFuture) {
+      el.onclick = () => showDayDetail(dateStr);
+    }
+    grid.appendChild(el);
+  }
+
+  // Next month filler
+  const totalCells = startOffset + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let day = 1; day <= remaining; day++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month';
+    el.textContent = day;
+    grid.appendChild(el);
+  }
+}
+
+// ===================== SCORING =====================
+function getDayScore(dateStr) {
+  const rec = state.records[dateStr];
+  if (!rec) return 0;
+  let score = 0;
+  for (const taskId in rec) {
+    if (rec[taskId].completed) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task) score += task.points;
+    }
+  }
+  return score;
+}
+
+function getTotalScore() {
+  let total = 0;
+  for (const date in state.records) {
+    total += getDayScore(date);
+  }
+  return total;
+}
+
+function getMonthScore(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  let total = 0;
+  for (const dateStr in state.records) {
+    const d = new Date(dateStr);
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      total += getDayScore(dateStr);
+    }
+  }
+  return total;
+}
+
+function getWeekScore(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 0); // Monday start
+  const monday = new Date(d);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  let total = 0;
+  for (const dateStr in state.records) {
+    const recordDate = new Date(dateStr);
+    if (recordDate >= monday && recordDate <= sunday) {
+      total += getDayScore(dateStr);
+    }
+  }
+  return total;
+}
+
+function getTotalRedeemed() {
+  return state.redemptions.reduce((sum, r) => sum + (parseInt(r.points) || 0), 0);
+}
+
+function getBalance() {
+  return getTotalScore() - getTotalRedeemed();
+}
+
+// ===================== DAY DETAIL =====================
+function showDayDetail(dateStr) {
+  state.selectedDate = dateStr;
+  document.getElementById('day-date').textContent = dateStr;
+  document.getElementById('day-score').textContent = `${getDayScore(dateStr)}分`;
+
+  const container = document.getElementById('day-tasks');
+  container.innerHTML = '';
+
+  if (state.tasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">&#128196;</div>
+        <div>暂无任务，请联系管理员添加</div>
+      </div>`;
+    showPage('page-day');
+    return;
+  }
+
+  state.tasks.forEach(task => {
+    const rec = (state.records[dateStr] || {})[task.id];
+    const completed = rec ? rec.completed : false;
+    const editorInfo = rec && rec.lastEditedAt
+      ? `最后更新：${rec.lastEditor} · ${new Date(rec.lastEditedAt).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+      : '点击左侧圆圈标记完成';
+    const item = document.createElement('div');
+    item.className = 'task-item';
+    item.onclick = () => toggleTask(dateStr, task.id);
+    item.innerHTML = `
+      <div class="task-checkbox ${completed ? 'checked' : ''}">
+        ${completed ? '&#10003;' : ''}
+      </div>
+      <div class="task-info">
+        <div class="task-name">${task.name}</div>
+        <div class="task-meta">${editorInfo}</div>
+      </div>
+      <div class="task-points">+${task.points}</div>
+    `;
+    container.appendChild(item);
+  });
+
+  showPage('page-day');
+}
+
+function toggleTask(dateStr, taskId) {
+  if (!state.records[dateStr]) state.records[dateStr] = {};
+  const rec = state.records[dateStr][taskId];
+  const role = getRoleById(state.currentRole);
+  let becameCompleted = false;
+
+  if (rec) {
+    rec.completed = !rec.completed;
+    rec.lastEditor = role.name;
+    rec.lastEditedAt = now();
+    becameCompleted = rec.completed;
+  } else {
+    state.records[dateStr][taskId] = {
+      completed: true,
+      lastEditor: role.name,
+      lastEditedAt: now()
+    };
+    becameCompleted = true;
+  }
+
+  saveData();
+  showDayDetail(dateStr);
+  if (becameCompleted) {
+    showToast(getEncourageMsg());
+  } else {
+    showToast('已更新');
+  }
+}
+
+// ===================== TASK MANAGEMENT =====================
+function renderTaskManage() {
+  const container = document.getElementById('task-manage-list');
+  if (state.tasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">&#128203;</div>
+        <div>暂无任务，点击上方按钮添加</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  state.tasks.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'list-item flex-between';
+    item.style.cursor = 'pointer';
+    item.innerHTML = `
+      <div>
+        <div class="font-bold">${task.name}</div>
+        <div class="text-sm text-light">${task.points} 积分</div>
+      </div>
+      <span class="text-light">&#8250;</span>
+    `;
+    item.onclick = () => openEditTask(task);
+    container.appendChild(item);
+  });
+}
+
+function addTask() {
+  const name = document.getElementById('input-task-name').value.trim();
+  const points = parseInt(document.getElementById('input-task-points').value) || 0;
+  if (!name) { showToast('请输入任务名称'); return; }
+
+  state.tasks.push({ id: genId(), name, points, createdAt: now() });
+  saveData();
+  closeModal('modal-add-task');
+  document.getElementById('input-task-name').value = '';
+  document.getElementById('input-task-points').value = '5';
+  renderTaskManage();
+  showToast('任务已添加');
+}
+
+function openEditTask(task) {
+  document.getElementById('edit-task-id').value = task.id;
+  document.getElementById('edit-task-name').value = task.name;
+  document.getElementById('edit-task-points').value = task.points;
+  openModal('modal-edit-task');
+}
+
+function saveEditTask() {
+  const id = document.getElementById('edit-task-id').value;
+  const name = document.getElementById('edit-task-name').value.trim();
+  const points = parseInt(document.getElementById('edit-task-points').value) || 0;
+  if (!name) { showToast('请输入任务名称'); return; }
+
+  const task = state.tasks.find(t => t.id === id);
+  if (task) {
+    task.name = name;
+    task.points = points;
+    saveData();
+    closeModal('modal-edit-task');
+    renderTaskManage();
+    showToast('已保存');
+  }
+}
+
+function deleteEditTask() {
+  if (!confirm('确定删除此任务吗？相关完成记录也将失效。')) return;
+  const id = document.getElementById('edit-task-id').value;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  // Clean records
+  for (const date in state.records) {
+    if (state.records[date][id]) delete state.records[date][id];
+  }
+  saveData();
+  closeModal('modal-edit-task');
+  renderTaskManage();
+  showToast('已删除');
+}
+
+// ===================== REDEMPTIONS =====================
+function renderRedemptions() {
+  document.getElementById('balance-num').textContent = getBalance();
+  document.getElementById('btn-add-redemption').style.display = isChild() ? 'none' : 'inline-flex';
+
+  const container = document.getElementById('redemption-list');
+  if (state.redemptions.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">&#127873;</div>
+        <div>暂无兑换记录</div>
+      </div>`;
+    return;
+  }
+
+  // Sort by date desc
+  const sorted = [...state.redemptions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  container.innerHTML = '';
+  sorted.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'redemption-item';
+    el.innerHTML = `
+      <div class="flex-between">
+        <div>
+          <div class="redemption-title">${item.name}</div>
+          <div class="redemption-meta">${item.date} · 兑换人：${item.createdBy}</div>
+        </div>
+        <div class="redemption-points">-${item.points}</div>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function addRedemption() {
+  const name = document.getElementById('input-redeem-name').value.trim();
+  const points = parseInt(document.getElementById('input-redeem-points').value) || 0;
+  const date = document.getElementById('input-redeem-date').value;
+  if (!name) { showToast('请输入兑换权益'); return; }
+  if (!date) { showToast('请选择日期'); return; }
+
+  const balance = getBalance();
+  if (points > balance) {
+    showToast(`积分不足，当前余额 ${balance}`);
+    return;
+  }
+
+  const role = getRoleById(state.currentRole);
+  state.redemptions.push({
+    id: genId(),
+    name,
+    points,
+    date,
+    createdBy: role.name,
+    createdAt: now()
+  });
+
+  saveData();
+  closeModal('modal-add-redemption');
+  document.getElementById('input-redeem-name').value = '';
+  document.getElementById('input-redeem-points').value = '10';
+  renderRedemptions();
+  showToast('兑换成功');
+}
+
+// ===================== SHARE LINKS =====================
+function renderShareLinks() {
+  const container = document.getElementById('share-links');
+  container.innerHTML = '';
+
+  const baseUrl = window.location.href.split('?')[0];
+
+  ROLES.forEach(role => {
+    if (role.type === 'admin') return; // Skip admin, she is the one sharing
+    const url = `${baseUrl}?role=${role.id}`;
+    const card = document.createElement('div');
+    card.className = 'share-card';
+    card.innerHTML = `
+      <div class="info">
+        <div class="role-name">${role.avatar} ${role.name}</div>
+        <div class="link-text">${url}</div>
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="copyLink('${url}')">复制</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function copyLink(url) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => showToast('链接已复制'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('链接已复制');
+  }
+}
+
+// ===================== PROFILE =====================
+function renderProfile() {
+  const role = getRoleById(state.currentRole);
+  document.getElementById('profile-role-name').textContent = `${role.name} · ${role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员'}`;
+}
+
+function resetData() {
+  if (!confirm('确定要重置所有数据吗？此操作不可恢复！')) return;
+  if (!confirm('再次确认：所有任务、完成记录、兑换记录将被清空？')) return;
+  state.tasks = [];
+  state.records = {};
+  state.redemptions = [];
+  saveData();
+  showToast('数据已重置');
+  showPage('page-home');
+}
+
+// ===================== URL PARAMS =====================
+function checkUrlRole() {
+  const params = new URLSearchParams(window.location.search);
+  const roleId = params.get('role');
+  if (roleId && getRoleById(roleId)) {
+    selectRole(roleId);
+    return true;
+  }
+  return false;
+}
+
+// ===================== INIT =====================
+function init() {
+  loadData();
+  renderRoleSelect();
+
+  // URL param takes priority
+  if (checkUrlRole()) return;
+
+  // Then check saved role
+  try {
+    const savedRole = localStorage.getItem(ROLE_KEY);
+    if (savedRole && getRoleById(savedRole)) {
+      selectRole(savedRole);
+      return;
+    }
+  } catch (e) {}
+
+  showPage('page-role');
+}
+
+init();
+</script>
+</body>
+</html>
