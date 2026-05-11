@@ -650,19 +650,37 @@
       padding: 16px;
       margin: 0 16px 16px;
     }
+    .ai-summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
     .ai-summary-title {
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--primary);
-      margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+    .ai-summary-toggle {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 500;
     }
     .ai-summary-body {
       font-size: 0.875rem;
       color: var(--text);
       line-height: 1.6;
+      margin-top: 8px;
+      transition: max-height 0.3s ease;
+    }
+    .ai-summary.collapsed .ai-summary-body {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .ai-summary-body p { margin-bottom: 6px; }
     .ai-summary-body p:last-child { margin-bottom: 0; }
@@ -840,8 +858,11 @@
     <button class="stats-filter-btn" data-range="month" onclick="setStatsRange('month')">本月</button>
     <button class="stats-filter-btn" data-range="all" onclick="setStatsRange('all')">累计</button>
   </div>
-  <div class="ai-summary" id="ai-summary">
-    <div class="ai-summary-title">&#129302; AI 智能分析</div>
+  <div class="ai-summary collapsed" id="ai-summary">
+    <div class="ai-summary-header" onclick="toggleAiSummary()">
+      <div class="ai-summary-title">&#129302; AI 智能分析</div>
+      <span class="ai-summary-toggle" id="ai-summary-toggle">展开 &#9660;</span>
+    </div>
     <div class="ai-summary-body" id="ai-summary-body">正在分析数据...</div>
   </div>
   <div class="card" id="stats-table-card">
@@ -2381,19 +2402,31 @@ function renderStatistics() {
   generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, range);
 }
 
+function toggleAiSummary() {
+  const el = document.getElementById('ai-summary');
+  const toggle = document.getElementById('ai-summary-toggle');
+  if (el.classList.contains('collapsed')) {
+    el.classList.remove('collapsed');
+    toggle.textContent = '收起 \u25B2';
+  } else {
+    el.classList.add('collapsed');
+    toggle.textContent = '展开 \u25BC';
+  }
+}
+
 function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, range) {
   const container = document.getElementById('ai-summary-body');
   if (taskStats.length === 0) {
-    container.innerHTML = '<p>暂无足够数据进行分析。快去添加任务并开始记录吧！</p>';
+    container.innerHTML = '<p>暂无数据，快去添加任务并开始记录吧！</p>';
     return;
   }
 
   const bestTask = taskStats[0];
-  const worstTask = taskStats[taskStats.length - 1];
   const rangeLabel = state.statsRange === 'week' ? '本周' : state.statsRange === 'month' ? '本月' : '累计';
+  const lines = [];
 
-  // Trend: compare week-over-week or month-over-month if enough data
-  let trendText = '';
+  lines.push(`${rangeLabel}：完成 <strong>${totalCompleted}</strong> 次 · <strong>${totalPoints}</strong> 分 · 完成率 <strong>${overallRate}%</strong>`);
+
   if (state.statsRange === 'week') {
     const today = new Date();
     const day = today.getDay();
@@ -2412,46 +2445,21 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, 
     }
     if (prevPoints > 0) {
       const change = totalPoints - prevPoints;
-      if (change > 0) trendText = `比上周多获得 <strong>${change}</strong> 分，进步明显！`;
-      else if (change < 0) trendText = `比上周少 <strong>${Math.abs(change)}</strong> 分，下周加油赶上！`;
-      else trendText = `与上周持平，保持稳定！`;
+      if (change > 0) lines.push(`比上周多 ${change} 分，继续加油！`);
+      else if (change < 0) lines.push(`比上周少 ${Math.abs(change)} 分，下周赶上！`);
+      else lines.push('与上周持平，保持稳定！');
     }
   }
-
-  const sentences = [];
-  sentences.push(`<strong>${rangeLabel}</strong>共完成 <strong>${totalCompleted}</strong> 次任务，获得 <strong>${totalPoints}</strong> 积分，整体完成率 <strong>${overallRate}%</strong>。`);
-
-  if (trendText) sentences.push(trendText);
 
   if (bestTask && bestTask.completedCount > 0) {
-    sentences.push(`表现最棒的是「${bestTask.name}」，完成了 <strong>${bestTask.completedCount}</strong> 次。`);
+    lines.push(`「${bestTask.name}」最棒，完成 ${bestTask.completedCount} 次。`);
   }
 
-  if (worstTask && worstTask.name !== bestTask.name) {
-    if (worstTask.rate < 50) {
-      sentences.push(`「${worstTask.name}」完成率偏低，可以尝试制定小目标逐步提升哦。`);
-    } else if (worstTask.completedCount === 0) {
-      sentences.push(`「${worstTask.name}」还没有完成记录，不妨从第一次开始！`);
-    }
-  }
+  if (overallRate >= 80) lines.push('整体表现超棒，继续保持！');
+  else if (overallRate >= 50) lines.push('完成度不错，再努力一点会更棒！');
+  else lines.push('每天坚持一点点，积少成多就能看到变化！');
 
-  if (overallRate >= 80) {
-    sentences.push('整体表现非常棒，YOYO的自律让人惊叹，继续保持！');
-  } else if (overallRate >= 50) {
-    sentences.push('完成度不错，再努力一点点就能更棒了，YOYO加油！');
-  } else {
-    sentences.push('刚开始总是最难的，每天坚持一点点，积少成多就能看到大变化！');
-  }
-
-  // Suggestion based on balance
-  const balance = getBalance();
-  if (balance > 50) {
-    sentences.push(`当前积分余额充足（${balance}分），可以适当兑换奖励激励自己。`);
-  } else if (balance < 10) {
-    sentences.push('积分余额不多了，继续完成任务积攒积分吧！');
-  }
-
-  container.innerHTML = sentences.map(s => `<p>${s}</p>`).join('');
+  container.innerHTML = lines.map(s => `<p>${s}</p>`).join('');
 }
 
 // ===================== PROFILE =====================
