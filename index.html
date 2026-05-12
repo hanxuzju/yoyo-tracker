@@ -59,6 +59,69 @@
     .app-header h1 { font-size: 1.25rem; font-weight: 600; }
     .app-header .sub { font-size: 0.8125rem; opacity: 0.85; margin-top: 4px; min-height: 1.25rem; }
 
+    /* Login page */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 20px;
+    }
+    .login-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 40px 24px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 320px;
+    }
+    .login-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .login-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus {
+      border-color: var(--primary);
+    }
+    .login-error {
+      color: var(--danger);
+      font-size: 0.8125rem;
+      margin-top: 8px;
+      min-height: 1.25rem;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .login-btn:active {
+      opacity: 0.85;
+    }
+
     /* Role selector */
     .role-grid {
       display: grid;
@@ -762,8 +825,25 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- ===================== PASSWORD LOGIN PAGE ===================== -->
+<div class="page active" id="page-login">
+  <div class="app-header">
+    <h1>YOYO 学习任务记录</h1>
+    <div class="sub">请输入密码进入系统</div>
+  </div>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-icon">🔒</div>
+      <div class="login-title">家庭验证</div>
+      <input type="password" id="login-password" class="login-input" placeholder="请输入密码" maxlength="20" autocomplete="off">
+      <div class="login-error" id="login-error"></div>
+      <button class="login-btn" id="login-btn" onclick="verifyPassword()">进入系统</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== ROLE SELECT PAGE ===================== -->
-<div class="page active" id="page-role">
+<div class="page" id="page-role">
   <div class="app-header">
     <h1>YOYO 学习任务记录</h1>
     <div class="sub">选择您的身份进入系统</div>
@@ -1622,6 +1702,50 @@ function startWelcomeTypewriter() {
   const msg = getWelcomeMsg(state.currentRole);
   const icon = isChild() ? '' : '';
   typeWriter(icon + msg, 'home-role-text', 55);
+}
+
+// ===================== PASSWORD LOGIN =====================
+const APP_PASSWORD = '112358';
+
+function verifyPassword() {
+  const input = document.getElementById('login-password');
+  const errorEl = document.getElementById('login-error');
+  const pwd = input.value.trim();
+
+  if (pwd === APP_PASSWORD) {
+    errorEl.textContent = '';
+    input.value = '';
+    proceedAfterLogin();
+  } else {
+    errorEl.textContent = pwd ? '密码错误，请重新输入' : '请输入密码';
+    input.focus();
+  }
+}
+
+// Enter key support for password input
+document.addEventListener('DOMContentLoaded', function() {
+  const pwdInput = document.getElementById('login-password');
+  if (pwdInput) {
+    pwdInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') verifyPassword();
+    });
+  }
+});
+
+function proceedAfterLogin() {
+  // URL param takes priority
+  if (checkUrlRole()) return;
+
+  // Then check saved role
+  try {
+    const savedRole = localStorage.getItem(ROLE_KEY);
+    if (savedRole && getRoleById(savedRole)) {
+      selectRole(savedRole);
+      return;
+    }
+  } catch (e) {}
+
+  showPage('page-role');
 }
 
 // ===================== PAGE NAVIGATION =====================
@@ -2718,19 +2842,8 @@ async function init() {
     cloudDataStatus = hasLocal ? 'loaded' : 'empty';
   }
 
-  // URL param takes priority
-  if (checkUrlRole()) return;
-
-  // Then check saved role
-  try {
-    const savedRole = localStorage.getItem(ROLE_KEY);
-    if (savedRole && getRoleById(savedRole)) {
-      selectRole(savedRole);
-      return;
-    }
-  } catch (e) {}
-
-  showPage('page-role');
+  // Always show login page first, wait for password verification
+  showPage('page-login');
 }
 
 init();
