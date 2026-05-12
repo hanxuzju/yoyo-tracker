@@ -2077,16 +2077,6 @@ function showDayDetail(dateStr) {
 
   const validTasks = state.tasks.filter(t => isTaskValidOnDate(t, dateStr));
 
-  if (validTasks.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">&#128196;</div>
-        <div>今日无有效任务</div>
-      </div>`;
-    showPage('page-day');
-    return;
-  }
-
   validTasks.forEach(task => {
     const rec = (state.records[dateStr] || {})[task.id];
     const completed = rec ? rec.completed : false;
@@ -2108,6 +2098,27 @@ function showDayDetail(dateStr) {
     `;
     container.appendChild(item);
   });
+
+  // 每日签到条目（不可点击编辑）
+  const checkedIn = state.checkins && state.checkins[dateStr];
+  const checkinItem = document.createElement('div');
+  checkinItem.className = 'task-item';
+  checkinItem.style.opacity = checkedIn ? '1' : '0.7';
+  checkinItem.style.cursor = 'default';
+  const checkinMeta = checkedIn
+    ? `最后更新：YOYO · ${dateStr}`
+    : '该任务仅能YOYO本人完成';
+  checkinItem.innerHTML = `
+    <div class="task-checkbox ${checkedIn ? 'checked' : ''}" style="pointer-events:none;">
+      ${checkedIn ? '&#10003;' : ''}
+    </div>
+    <div class="task-info">
+      <div class="task-name">每日签到</div>
+      <div class="task-meta">${checkinMeta}</div>
+    </div>
+    <div class="task-points">+2</div>
+  `;
+  container.appendChild(checkinItem);
 
   showPage('page-day');
 }
