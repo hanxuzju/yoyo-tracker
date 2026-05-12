@@ -493,7 +493,17 @@
       padding: 18px 20px;
       border-radius: var(--radius);
       margin: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .balance-bar-item {
+      flex: 1;
       text-align: center;
+    }
+    .balance-bar-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.4);
     }
     .balance-bar .num {
       font-size: 2rem;
@@ -967,8 +977,15 @@
     <div class="sub">1积分可兑换2元零花钱或2分钟电视/游戏时间</div>
   </div>
   <div class="balance-bar">
-    <div class="num" id="balance-num">0</div>
-    <div class="label">当前积分余额</div>
+    <div class="balance-bar-item">
+      <div class="num" id="balance-num">0</div>
+      <div class="label">当前积分余额</div>
+    </div>
+    <div class="balance-bar-divider"></div>
+    <div class="balance-bar-item">
+      <div class="num" id="balance-redeemed-num">0</div>
+      <div class="label">累计兑换分数</div>
+    </div>
   </div>
   <div class="flex-between" style="padding: 0 16px 10px;">
     <span class="section-title" style="padding:0;">兑换记录</span>
@@ -2338,6 +2355,7 @@ function deleteEditTask() {
 // ===================== REDEMPTIONS =====================
 function renderRedemptions() {
   document.getElementById('balance-num').textContent = getBalance();
+  document.getElementById('balance-redeemed-num').textContent = getTotalRedeemed();
   document.getElementById('btn-add-redemption').style.display = isChild() ? 'none' : 'inline-flex';
 
   const container = document.getElementById('redemption-list');
