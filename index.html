@@ -122,6 +122,32 @@
       opacity: 0.85;
     }
 
+    /* Check-in button */
+    .btn-checkin {
+      position: absolute;
+      top: 24px;
+      right: 20px;
+      padding: 6px 14px;
+      background: #fff;
+      color: var(--primary);
+      border: none;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 1;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-checkin:active {
+      transform: scale(0.95);
+    }
+    .btn-checkin.checked {
+      background: rgba(255,255,255,0.6);
+      color: var(--success);
+      cursor: default;
+      font-size: 0.6875rem;
+    }
+
     /* Role selector */
     .role-grid {
       display: grid;
@@ -861,6 +887,7 @@
   <div class="app-header">
     <h1 id="home-greeting">欢迎</h1>
     <div class="sub" id="home-role"><span id="home-role-text"></span><span class="typewriter-cursor" id="typewriter-cursor"></span></div>
+    <button id="btn-checkin" class="btn-checkin" onclick="doCheckin()" style="display:none;">签到</button>
   </div>
 
   <div class="stats-row" style="padding-bottom:8px;">
@@ -1370,6 +1397,7 @@ let state = {
   tasks: [],
   records: {}, // { "2026-05-11": { "taskId": { completed: true, lastEditor: "妈妈", lastEditedAt: "..." } } }
   redemptions: [],
+  checkins: {}, // { "2026-05-12": true } — 每日签到记录
   currentMonth: new Date(),
   selectedDate: null,
   statsRange: 'week'
@@ -1384,6 +1412,7 @@ function loadLocalCache() {
       state.tasks = saved.tasks || [];
       state.records = saved.records || {};
       state.redemptions = saved.redemptions || [];
+      state.checkins = saved.checkins || {};
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
       });
@@ -1408,13 +1437,15 @@ async function loadFromSupabase() {
       state.tasks = saved.tasks || [];
       state.records = saved.records || {};
       state.redemptions = saved.redemptions || [];
+      state.checkins = saved.checkins || {};
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         tasks: state.tasks,
         records: state.records,
-        redemptions: state.redemptions
+        redemptions: state.redemptions,
+        checkins: state.checkins
       }));
       if (saved.updatedAt) {
         localStorage.setItem('yoyo_tracker_sync_time', saved.updatedAt);
@@ -1452,6 +1483,7 @@ async function saveToSupabase() {
         tasks: state.tasks,
         records: state.records,
         redemptions: state.redemptions,
+        checkins: state.checkins,
         updatedAt: ts
       }
     };
@@ -1500,7 +1532,8 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     tasks: state.tasks,
     records: state.records,
-    redemptions: state.redemptions
+    redemptions: state.redemptions,
+    checkins: state.checkins
   }));
   if (supabaseClient) {
     scheduleSaveToCloud();
@@ -1554,13 +1587,15 @@ function setupRealtime() {
         state.tasks = saved.tasks || [];
         state.records = saved.records || {};
         state.redemptions = saved.redemptions || [];
+        state.checkins = saved.checkins || {};
         state.tasks.forEach(t => {
           if (!t.validity) t.validity = { type: 'permanent' };
         });
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           tasks: state.tasks,
           records: state.records,
-          redemptions: state.redemptions
+          redemptions: state.redemptions,
+          checkins: state.checkins
         }));
         if (cloudUpdated) {
           localStorage.setItem('yoyo_tracker_sync_time', cloudUpdated);
@@ -1814,6 +1849,7 @@ function selectRole(roleId) {
   document.getElementById('nav-tasks').style.display = isAdmin() ? 'block' : 'none';
   document.getElementById('profile-share-row').style.display = isAdmin() ? 'flex' : 'none';
   document.getElementById('btn-add-redemption').style.display = isChild() ? 'none' : 'inline-flex';
+  document.getElementById('btn-checkin').style.display = isChild() ? 'block' : 'none';
   document.getElementById('bottom-nav').style.display = 'flex';
 
   initDemoData();
@@ -1831,6 +1867,7 @@ function switchRole() {
 function renderHome() {
   renderStats();
   renderCalendar();
+  updateCheckinButton();
   startWelcomeTypewriter();
 }
 
@@ -1891,7 +1928,7 @@ function renderCalendar() {
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const score = getDayScore(dateStr);
-    const hasRecords = !!state.records[dateStr];
+    const hasRecords = !!state.records[dateStr] || !!state.checkins[dateStr];
     const isFuture = dateStr > today;
 
     const el = document.createElement('div');
@@ -1925,22 +1962,32 @@ function renderCalendar() {
 // ===================== SCORING =====================
 function getDayScore(dateStr) {
   const rec = state.records[dateStr];
-  if (!rec) return 0;
   let score = 0;
-  for (const taskId in rec) {
-    if (rec[taskId].completed) {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (task && isTaskValidOnDate(task, dateStr)) {
-        score += task.points;
+  if (rec) {
+    for (const taskId in rec) {
+      if (rec[taskId].completed) {
+        const task = state.tasks.find(t => t.id === taskId);
+        if (task && isTaskValidOnDate(task, dateStr)) {
+          score += task.points;
+        }
       }
     }
   }
+  if (state.checkins && state.checkins[dateStr]) score += 2;
   return score;
+}
+
+function getAllScoredDates() {
+  const dates = new Set(Object.keys(state.records));
+  if (state.checkins) {
+    Object.keys(state.checkins).forEach(d => dates.add(d));
+  }
+  return dates;
 }
 
 function getTotalScore() {
   let total = 0;
-  for (const date in state.records) {
+  for (const date of getAllScoredDates()) {
     total += getDayScore(date);
   }
   return total;
@@ -1950,7 +1997,7 @@ function getMonthScore(date) {
   const year = date.getFullYear();
   const month = date.getMonth();
   let total = 0;
-  for (const dateStr in state.records) {
+  for (const dateStr of getAllScoredDates()) {
     const d = new Date(dateStr + 'T00:00:00');
     if (d.getFullYear() === year && d.getMonth() === month) {
       total += getDayScore(dateStr);
@@ -1971,7 +2018,7 @@ function getWeekScore(date) {
   sunday.setHours(23, 59, 59, 999);
 
   let total = 0;
-  for (const dateStr in state.records) {
+  for (const dateStr of getAllScoredDates()) {
     const recordDate = new Date(dateStr + 'T00:00:00');
     if (recordDate >= monday && recordDate <= sunday) {
       total += getDayScore(dateStr);
@@ -1986,6 +2033,42 @@ function getTotalRedeemed() {
 
 function getBalance() {
   return getTotalScore() - getTotalRedeemed();
+}
+
+// ===================== CHECKIN =====================
+function doCheckin() {
+  if (!isChild()) return;
+  const today = todayStr();
+  if (state.checkins[today]) {
+    showToast('今日已签到');
+    return;
+  }
+  state.checkins[today] = true;
+  saveData();
+  updateCheckinButton();
+  renderStats();
+  renderCalendar();
+  showToast('签到成功！+2分');
+}
+
+function updateCheckinButton() {
+  const btn = document.getElementById('btn-checkin');
+  if (!btn) return;
+  if (!isChild()) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'block';
+  const today = todayStr();
+  if (state.checkins[today]) {
+    btn.textContent = '今日已签到+2分';
+    btn.classList.add('checked');
+    btn.disabled = true;
+  } else {
+    btn.textContent = '签到';
+    btn.classList.remove('checked');
+    btn.disabled = false;
+  }
 }
 
 // ===================== DAY DETAIL =====================
@@ -2536,7 +2619,7 @@ function renderStatistics() {
   // Sort by points earned desc
   taskStats.sort((a, b) => b.pointsEarned - a.pointsEarned);
 
-  if (taskStats.length === 0) {
+  if (taskStats.length === 0 && Object.keys(state.checkins).length === 0) {
     tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light); padding:24px;">暂无任务数据</td></tr>`;
   } else {
     taskStats.forEach(ts => {
@@ -2550,6 +2633,38 @@ function renderStatistics() {
       `;
       tbody.appendChild(tr);
     });
+
+    // 每日签到固定行
+    let checkinCount = 0;
+    let checkinPossible = 0;
+    if (range.start && range.end) {
+      const s = new Date(range.start + 'T00:00:00');
+      const e = new Date(range.end + 'T00:00:00');
+      for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+        checkinPossible++;
+        if (state.checkins[fmtDate(d)]) checkinCount++;
+      }
+    } else {
+      const allCheckinDates = Object.keys(state.checkins);
+      checkinCount = allCheckinDates.length;
+      const allDatesSet = new Set([...Object.keys(state.records), ...allCheckinDates]);
+      checkinPossible = allDatesSet.size || 1;
+    }
+    const checkinPoints = checkinCount * 2;
+    const checkinRate = checkinPossible > 0 ? Math.round((checkinCount / checkinPossible) * 100) : 0;
+    const checkinRateClass = checkinRate >= 80 ? 'rate-high' : checkinRate >= 50 ? 'rate-mid' : 'rate-low';
+    const checkinTr = document.createElement('tr');
+    checkinTr.innerHTML = `
+      <td>每日签到</td>
+      <td style="text-align:center;" class="num">${checkinCount}</td>
+      <td style="text-align:center;" class="num">${checkinPoints}</td>
+      <td style="text-align:center;" class="${checkinRateClass}">${checkinRate}%</td>
+    `;
+    tbody.appendChild(checkinTr);
+
+    totalCompleted += checkinCount;
+    totalPoints += checkinPoints;
+    totalPossible += checkinPossible;
   }
 
   document.getElementById('stats-summary-total').textContent = totalPoints;
@@ -2685,6 +2800,7 @@ function resetData() {
   state.tasks = [];
   state.records = {};
   state.redemptions = [];
+  state.checkins = {};
   saveData();
   showToast('数据已重置');
   showPage('page-home');
@@ -2697,7 +2813,8 @@ function getExportJSON() {
     exportAt: now(),
     tasks: state.tasks,
     records: state.records,
-    redemptions: state.redemptions
+    redemptions: state.redemptions,
+    checkins: state.checkins
   }, null, 2);
 }
 
@@ -2767,6 +2884,7 @@ function parseAndImport(jsonText) {
     state.tasks = data.tasks;
     state.records = data.records;
     state.redemptions = data.redemptions;
+    state.checkins = data.checkins || {};
     saveData();
     showToast('数据导入成功');
     closeModal('modal-import-data');
