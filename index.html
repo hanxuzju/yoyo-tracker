@@ -1808,7 +1808,7 @@ function selectRole(roleId) {
   try { localStorage.setItem(ROLE_KEY, roleId); } catch (e) {}
   const role = getRoleById(roleId);
 
-  document.getElementById('home-greeting').textContent = `欢迎，${role.name}`;
+  document.getElementById('home-greeting').textContent = `欢迎，${role.type === 'child' ? role.name : 'YOYO' + role.name}`;
 
   // Toggle admin-only nav
   document.getElementById('nav-tasks').style.display = isAdmin() ? 'block' : 'none';
