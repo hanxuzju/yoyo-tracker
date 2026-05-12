@@ -891,17 +891,17 @@
   </div>
 
   <div class="stats-row" style="padding-bottom:8px;">
-    <div class="stat-box">
+    <div class="stat-box" style="cursor: pointer;" onclick="goStatsWithRange('all')">
       <div class="value" id="stat-total">0</div>
-      <div class="label">累计积分</div>
+      <div class="label">累计积分 &#8250;</div>
     </div>
-    <div class="stat-box">
+    <div class="stat-box" style="cursor: pointer;" onclick="goStatsWithRange('month')">
       <div class="value warning" id="stat-month">0</div>
-      <div class="label">本月积分</div>
+      <div class="label">本月积分 &#8250;</div>
     </div>
-    <div class="stat-box">
+    <div class="stat-box" style="cursor: pointer;" onclick="goStatsWithRange('week')">
       <div class="value success" id="stat-week">0</div>
-      <div class="label">本周积分</div>
+      <div class="label">本周积分 &#8250;</div>
     </div>
   </div>
 
@@ -1006,14 +1006,13 @@
             <th>任务</th>
             <th style="text-align:center;">完成次数</th>
             <th style="text-align:center;">获得积分</th>
-            <th style="text-align:center;">完成率</th>
           </tr>
         </thead>
         <tbody id="stats-table-body"></tbody>
       </table>
     </div>
   </div>
-  <div class="stats-row" style="padding-top:0;">
+  <div class="stats-row" style="padding-top:0; grid-template-columns: 1fr 1fr;">
     <div class="stat-box">
       <div class="value" id="stats-summary-total">0</div>
       <div class="label">总积分</div>
@@ -1021,10 +1020,6 @@
     <div class="stat-box">
       <div class="value success" id="stats-summary-completed">0</div>
       <div class="label">完成次数</div>
-    </div>
-    <div class="stat-box">
-      <div class="value warning" id="stats-summary-rate">0%</div>
-      <div class="label">总完成率</div>
     </div>
   </div>
 </div>
@@ -2529,6 +2524,14 @@ function setStatsRange(range) {
   renderStatistics();
 }
 
+function goStatsWithRange(range) {
+  state.statsRange = range;
+  document.querySelectorAll('.stats-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.range === range);
+  });
+  showPage('page-statistics');
+}
+
 function getStatsDateRange() {
   const today = new Date();
   const todayS = todayStr();
@@ -2558,27 +2561,21 @@ function renderStatistics() {
 
   // Gather data per task
   const taskStats = [];
-  let totalPossible = 0;
   let totalCompleted = 0;
   let totalPoints = 0;
 
   state.tasks.forEach(task => {
     let completedCount = 0;
     let pointsEarned = 0;
-    let possibleDays = 0;
 
-    // Count completions and possible days within range
     const allDates = Object.keys(state.records).sort();
-    // Also include dates where task is valid but no record exists
     let checkDates = allDates;
     if (range.start && range.end) {
       checkDates = allDates.filter(d => d >= range.start && d <= range.end);
     }
 
-    // For completion count and points
     checkDates.forEach(dateStr => {
       if (!isTaskValidOnDate(task, dateStr)) return;
-      possibleDays++;
       const rec = state.records[dateStr];
       if (rec && rec[task.id] && rec[task.id].completed) {
         completedCount++;
@@ -2586,32 +2583,12 @@ function renderStatistics() {
       }
     });
 
-    // For tasks with no records at all in range but valid on some days, we still want possible days
-    // If range is set, count all valid days in range
-    if (range.start && range.end) {
-      const s = new Date(range.start + 'T00:00:00');
-      const e = new Date(range.end + 'T00:00:00');
-      possibleDays = 0;
-      for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
-        const ds = fmtDate(d);
-        if (isTaskValidOnDate(task, ds)) possibleDays++;
-      }
-    } else {
-      // all-time: use all dates that have records where task is valid, or at least 1 if never recorded
-      const validRecordDates = allDates.filter(d => isTaskValidOnDate(task, d));
-      possibleDays = validRecordDates.length || 1;
-    }
-
-    const rate = possibleDays > 0 ? Math.round((completedCount / possibleDays) * 100) : 0;
     taskStats.push({
       name: task.name,
       completedCount,
-      pointsEarned,
-      rate,
-      possibleDays
+      pointsEarned
     });
 
-    totalPossible += possibleDays;
     totalCompleted += completedCount;
     totalPoints += pointsEarned;
   });
@@ -2620,60 +2597,47 @@ function renderStatistics() {
   taskStats.sort((a, b) => b.pointsEarned - a.pointsEarned);
 
   if (taskStats.length === 0 && Object.keys(state.checkins).length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light); padding:24px;">暂无任务数据</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-light); padding:24px;">暂无任务数据</td></tr>`;
   } else {
     taskStats.forEach(ts => {
       const tr = document.createElement('tr');
-      const rateClass = ts.rate >= 80 ? 'rate-high' : ts.rate >= 50 ? 'rate-mid' : 'rate-low';
       tr.innerHTML = `
         <td>${ts.name}</td>
         <td style="text-align:center;" class="num">${ts.completedCount}</td>
         <td style="text-align:center;" class="num">${ts.pointsEarned}</td>
-        <td style="text-align:center;" class="${rateClass}">${ts.rate}%</td>
       `;
       tbody.appendChild(tr);
     });
 
     // 每日签到固定行
     let checkinCount = 0;
-    let checkinPossible = 0;
     if (range.start && range.end) {
       const s = new Date(range.start + 'T00:00:00');
       const e = new Date(range.end + 'T00:00:00');
       for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
-        checkinPossible++;
         if (state.checkins[fmtDate(d)]) checkinCount++;
       }
     } else {
-      const allCheckinDates = Object.keys(state.checkins);
-      checkinCount = allCheckinDates.length;
-      const allDatesSet = new Set([...Object.keys(state.records), ...allCheckinDates]);
-      checkinPossible = allDatesSet.size || 1;
+      checkinCount = Object.keys(state.checkins).length;
     }
     const checkinPoints = checkinCount * 2;
-    const checkinRate = checkinPossible > 0 ? Math.round((checkinCount / checkinPossible) * 100) : 0;
-    const checkinRateClass = checkinRate >= 80 ? 'rate-high' : checkinRate >= 50 ? 'rate-mid' : 'rate-low';
     const checkinTr = document.createElement('tr');
     checkinTr.innerHTML = `
       <td>每日签到</td>
       <td style="text-align:center;" class="num">${checkinCount}</td>
       <td style="text-align:center;" class="num">${checkinPoints}</td>
-      <td style="text-align:center;" class="${checkinRateClass}">${checkinRate}%</td>
     `;
     tbody.appendChild(checkinTr);
 
     totalCompleted += checkinCount;
     totalPoints += checkinPoints;
-    totalPossible += checkinPossible;
   }
 
   document.getElementById('stats-summary-total').textContent = totalPoints;
   document.getElementById('stats-summary-completed').textContent = totalCompleted;
-  const overallRate = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
-  document.getElementById('stats-summary-rate').textContent = overallRate + '%';
 
   // AI Summary
-  generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, range);
+  generateAiSummary(taskStats, totalPoints, totalCompleted, range);
 }
 
 function toggleAiSummary() {
@@ -2688,7 +2652,7 @@ function toggleAiSummary() {
   }
 }
 
-function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, range) {
+function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
   const container = document.getElementById('ai-summary-body');
   if (taskStats.length === 0) {
     container.innerHTML = '<p>暂无数据，快去添加任务并开始记录吧！</p>';
@@ -2699,7 +2663,7 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, 
   const rangeLabel = state.statsRange === 'week' ? '本周' : state.statsRange === 'month' ? '本月' : '累计';
   const lines = [];
 
-  lines.push(`${rangeLabel}：完成 <strong>${totalCompleted}</strong> 次 · <strong>${totalPoints}</strong> 分 · 完成率 <strong>${overallRate}%</strong>`);
+  lines.push(`${rangeLabel}：完成 <strong>${totalCompleted}</strong> 次 · 获得 <strong>${totalPoints}</strong> 分`);
 
   if (state.statsRange === 'week') {
     const today = new Date();
@@ -2712,7 +2676,7 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, 
     const prevStart = fmtDate(prevMonday);
     const prevEnd = fmtDate(prevSunday);
     let prevPoints = 0;
-    for (const dateStr in state.records) {
+    for (const dateStr of getAllScoredDates()) {
       if (dateStr >= prevStart && dateStr <= prevEnd) {
         prevPoints += getDayScore(dateStr);
       }
@@ -2729,9 +2693,7 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, overallRate, 
     lines.push(`「${bestTask.name}」最棒，完成 ${bestTask.completedCount} 次。`);
   }
 
-  if (overallRate >= 80) lines.push('整体表现超棒，继续保持！');
-  else if (overallRate >= 50) lines.push('完成度不错，再努力一点会更棒！');
-  else lines.push('每天坚持一点点，积少成多就能看到变化！');
+  lines.push('每天坚持一点点，积少成多就能看到变化！');
 
   container.innerHTML = lines.map(s => `<p>${s}</p>`).join('');
 }
