@@ -639,7 +639,42 @@
       justify-content: space-between;
       border-bottom: 1px solid var(--border);
     }
+    .day-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .day-nav-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 100px;
+    }
+    .day-nav-btn {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 1.1rem;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .day-nav-btn:active { background: var(--bg); }
+    .day-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
     .day-detail-header .date { font-size: 1.125rem; font-weight: 600; }
+    .day-relative {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
     .day-detail-header .day-score {
       font-size: 1.25rem;
       font-weight: 700;
@@ -973,7 +1008,14 @@
 <div class="page" id="page-day">
   <div class="day-detail-header">
     <button class="back-btn" onclick="showPage('page-home')">&#8249; 返回</button>
-    <span class="date" id="day-date"></span>
+    <div class="day-nav">
+      <button class="day-nav-btn" id="day-prev" onclick="navigateDay(-1)">&#8249;</button>
+      <div class="day-nav-center">
+        <span class="date" id="day-date"></span>
+        <span class="day-relative" id="day-relative"></span>
+      </div>
+      <button class="day-nav-btn" id="day-next" onclick="navigateDay(1)">&#8250;</button>
+    </div>
     <span class="day-score" id="day-score"></span>
   </div>
   <div class="card" style="margin-top:16px;">
@@ -2139,10 +2181,32 @@ function updateCheckinButton() {
 }
 
 // ===================== DAY DETAIL =====================
+function navigateDay(offset) {
+  if (!state.selectedDate) return;
+  const d = new Date(state.selectedDate + 'T00:00:00');
+  d.setDate(d.getDate() + offset);
+  const newDate = fmtDate(d);
+  if (newDate > todayStr()) return;
+  showDayDetail(newDate);
+}
+
 function showDayDetail(dateStr) {
   state.selectedDate = dateStr;
   document.getElementById('day-date').textContent = dateStr;
   document.getElementById('day-score').textContent = `${getDayScore(dateStr)}分`;
+
+  // 相对日期描述
+  const today = todayStr();
+  const diff = Math.floor((new Date(today + 'T00:00:00') - new Date(dateStr + 'T00:00:00')) / 86400000);
+  let relLabel = '';
+  if (diff === 0) relLabel = '今天';
+  else if (diff === 1) relLabel = '昨天';
+  else if (diff === 2) relLabel = '前天';
+  else if (diff > 2) relLabel = `${diff}天前`;
+  document.getElementById('day-relative').textContent = relLabel;
+
+  // 导航按钮状态
+  document.getElementById('day-next').disabled = (dateStr >= today);
 
   const container = document.getElementById('day-tasks');
   container.innerHTML = '';
