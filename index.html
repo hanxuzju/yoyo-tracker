@@ -535,6 +535,29 @@
     .balance-bar .num.redeemed-color { color: var(--danger); }
     .balance-bar .label { font-size: 0.875rem; color: var(--text-light); margin-top: 4px; }
 
+    /* Changelog */
+    .changelog-list { padding: 4px 0; }
+    .changelog-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .changelog-item:last-child { border-bottom: none; }
+    .changelog-item .cl-ver {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .changelog-item .cl-desc {
+      font-size: 0.875rem;
+      color: var(--text);
+      margin-top: 4px;
+    }
+    .changelog-item .cl-time {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center;
@@ -1143,6 +1166,10 @@
       <span>切换身份</span>
       <span>&#8250;</span>
     </div>
+    <div class="list-item flex-between" onclick="openModal('modal-changelog')">
+      <span>当前版本</span>
+      <span class="text-light" id="app-version">v1.24</span>
+    </div>
   </div>
   <div class="profile-actions">
     <button class="btn btn-outline btn-block" onclick="exportData()">&#128190; 导出数据</button>
@@ -1371,6 +1398,17 @@
     <div class="export-hint" style="margin:12px 0;">或</div>
     <button class="btn btn-outline btn-block" onclick="triggerFileImport()">方式二：从文件导入</button>
     <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importFromFile(this)">
+  </div>
+</div>
+
+<!-- ===================== CHANGELOG MODAL ===================== -->
+<div class="modal-overlay" id="modal-changelog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">更新日志</span>
+      <button class="modal-close" onclick="closeModal('modal-changelog')">&times;</button>
+    </div>
+    <div class="changelog-list" id="changelog-list"></div>
   </div>
 </div>
 
@@ -1746,6 +1784,9 @@ function openModal(id) {
     document.getElementById('input-task-start').value = '';
     document.getElementById('input-task-end').value = '';
     document.querySelectorAll('#periodic-days .day-chip').forEach(c => c.classList.remove('active'));
+  }
+  if (id === 'modal-changelog') {
+    renderChangelog();
   }
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -2881,6 +2922,46 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
   lines.push('每天坚持一点点，积少成多就能看到变化！');
 
   container.innerHTML = lines.map(s => `<p>${s}</p>`).join('');
+}
+
+// ===================== CHANGELOG =====================
+const APP_VERSION = 'v1.24';
+const CHANGELOG = [
+  { ver: 'v1.24', desc: '新增版本号与更新日志功能', time: '2026-05-18 14:30:00' },
+  { ver: 'v1.23', desc: '修复 JS 语法错误导致页面无响应', time: '2026-05-18 13:54:33' },
+  { ver: 'v1.22', desc: '单日任务页增加前/后天导航及相对日期描述', time: '2026-05-18 13:49:41' },
+  { ver: 'v1.21', desc: '密码输入可见/不可见切换；签到支持7天内补签', time: '2026-05-18 11:34:29' },
+  { ver: 'v1.20', desc: '兑换页余额栏文案优化', time: '2026-05-12 14:58:52' },
+  { ver: 'v1.19', desc: '兑换页余额栏改为白底蓝红配色', time: '2026-05-12 14:56:47' },
+  { ver: 'v1.18', desc: '兑换页余额栏拆分为当前余额 + 累计兑换', time: '2026-05-12 14:53:22' },
+  { ver: 'v1.17', desc: '单日任务列表底部展示每日签到条目', time: '2026-05-12 14:08:49' },
+  { ver: 'v1.16', desc: '统计页去掉完成率列；积分框点击跳转统计页', time: '2026-05-12 14:02:16' },
+  { ver: 'v1.15', desc: 'YOYO 每日签到功能（+2分/天）', time: '2026-05-12 13:58:07' },
+  { ver: 'v1.14', desc: '欢迎语增加 YOYO 前缀（如 YOYO妈妈）', time: '2026-05-12 13:38:24' },
+  { ver: 'v1.13', desc: '新增密码登录页，所有角色需验证密码', time: '2026-05-12 11:42:08' },
+  { ver: 'v1.12', desc: '修复切换身份功能对所有用户可见', time: '2026-05-11 23:36:17' },
+  { ver: 'v1.11', desc: '我的页面新增家庭成员统计', time: '2026-05-11 23:34:35' },
+  { ver: 'v1.10', desc: '切换身份和重置数据限管理员操作', time: '2026-05-11 23:25:29' },
+  { ver: 'v1.09', desc: 'AI 智能分析默认折叠并精简内容', time: '2026-05-11 23:21:18' },
+  { ver: 'v1.08', desc: '兑换日期限制为今天及之前', time: '2026-05-11 23:09:32' },
+  { ver: 'v1.07', desc: '统计布局优化，兑换页副标题更新', time: '2026-05-11 23:05:28' },
+  { ver: 'v1.06', desc: '兑换记录支持编辑/删除，增加权限控制', time: '2026-05-11 22:56:51' },
+  { ver: 'v1.05', desc: '新增 Supabase 云端数据同步', time: '2026-05-11 22:44:26' },
+  { ver: 'v1.04', desc: '导出/导入适配微信和钉钉浏览器', time: '2026-05-11 20:14:38' },
+  { ver: 'v1.03', desc: '新增导出/导入、打字机欢迎语、统计页、任务有效期', time: '2026-05-11 19:54:07' },
+  { ver: 'v1.02', desc: 'GitHub Pages 自动部署', time: '2026-05-11 17:01:01' },
+  { ver: 'v1.01', desc: '初始版本上线：日历、任务管理、积分兑换', time: '2026-05-11 16:56:57' },
+];
+
+function renderChangelog() {
+  const container = document.getElementById('changelog-list');
+  container.innerHTML = CHANGELOG.map(item => `
+    <div class="changelog-item">
+      <span class="cl-ver">${item.ver}</span>
+      <div class="cl-desc">${item.desc}</div>
+      <div class="cl-time">${item.time}</div>
+    </div>
+  `).join('');
 }
 
 // ===================== PROFILE =====================
