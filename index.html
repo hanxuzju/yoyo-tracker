@@ -2237,7 +2237,6 @@ function showDayDetail(dateStr) {
 
   // 每日签到条目
   const checkedIn = state.checkins && state.checkins[dateStr];
-  const today = todayStr();
   const daysDiff = Math.floor((new Date(today + 'T00:00:00') - new Date(dateStr + 'T00:00:00')) / 86400000);
   const isFutureDate = dateStr > today;
   const canCheckin = isChild() && !checkedIn && !isFutureDate && daysDiff <= 7;
