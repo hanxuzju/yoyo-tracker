@@ -99,6 +99,27 @@
     .login-input:focus {
       border-color: var(--primary);
     }
+    .login-input-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .login-input-wrap .login-input {
+      padding-right: 42px;
+    }
+    .login-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.1rem;
+      opacity: 0.4;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .login-toggle-pwd.visible {
+      opacity: 0.8;
+    }
     .login-error {
       color: var(--danger);
       font-size: 0.8125rem;
@@ -874,7 +895,10 @@
     <div class="login-card">
       <div class="login-icon">🔒</div>
       <div class="login-title">家庭验证</div>
-      <input type="password" id="login-password" class="login-input" placeholder="请输入密码" maxlength="20" autocomplete="off">
+      <div class="login-input-wrap">
+        <input type="password" id="login-password" class="login-input" placeholder="请输入密码" maxlength="20" autocomplete="off">
+        <span class="login-toggle-pwd" id="login-toggle-pwd" onclick="togglePasswordVisibility()">&#128065;</span>
+      </div>
       <div class="login-error" id="login-error"></div>
       <button class="login-btn" id="login-btn" onclick="verifyPassword()">进入系统</button>
     </div>
@@ -1757,6 +1781,18 @@ function startWelcomeTypewriter() {
 // ===================== PASSWORD LOGIN =====================
 const APP_PASSWORD = '112358';
 
+function togglePasswordVisibility() {
+  const input = document.getElementById('login-password');
+  const toggle = document.getElementById('login-toggle-pwd');
+  if (input.type === 'password') {
+    input.type = 'text';
+    toggle.classList.add('visible');
+  } else {
+    input.type = 'password';
+    toggle.classList.remove('visible');
+  }
+}
+
 function verifyPassword() {
   const input = document.getElementById('login-password');
   const errorEl = document.getElementById('login-error');
@@ -2066,6 +2102,22 @@ function doCheckin() {
   showToast('签到成功！+2分');
 }
 
+function doCheckinForDate(dateStr) {
+  if (!isChild()) return;
+  if (state.checkins[dateStr]) return;
+  const today = todayStr();
+  const daysDiff = Math.floor((new Date(today + 'T00:00:00') - new Date(dateStr + 'T00:00:00')) / 86400000);
+  if (dateStr > today || daysDiff > 7) return;
+  state.checkins[dateStr] = true;
+  saveData();
+  const isToday = dateStr === today;
+  if (isToday) updateCheckinButton();
+  renderStats();
+  renderCalendar();
+  showDayDetail(dateStr);
+  showToast(isToday ? '签到成功！+2分' : '补签成功！+2分');
+}
+
 function updateCheckinButton() {
   const btn = document.getElementById('btn-checkin');
   if (!btn) return;
@@ -2119,25 +2171,63 @@ function showDayDetail(dateStr) {
     container.appendChild(item);
   });
 
-  // 每日签到条目（不可点击编辑）
+  // 每日签到条目
   const checkedIn = state.checkins && state.checkins[dateStr];
+  const today = todayStr();
+  const daysDiff = Math.floor((new Date(today + 'T00:00:00') - new Date(dateStr + 'T00:00:00')) / 86400000);
+  const isFutureDate = dateStr > today;
+  const canCheckin = isChild() && !checkedIn && !isFutureDate && daysDiff <= 7;
+  const tooOld = !checkedIn && !isFutureDate && daysDiff > 7;
+
   const checkinItem = document.createElement('div');
   checkinItem.className = 'task-item';
-  checkinItem.style.opacity = checkedIn ? '1' : '0.7';
-  checkinItem.style.cursor = 'default';
-  const checkinMeta = checkedIn
-    ? `最后更新：YOYO · ${dateStr}`
-    : '该任务仅能YOYO本人完成';
-  checkinItem.innerHTML = `
-    <div class="task-checkbox ${checkedIn ? 'checked' : ''}" style="pointer-events:none;">
-      ${checkedIn ? '&#10003;' : ''}
-    </div>
-    <div class="task-info">
-      <div class="task-name">每日签到</div>
-      <div class="task-meta">${checkinMeta}</div>
-    </div>
-    <div class="task-points">+2</div>
-  `;
+
+  if (checkedIn) {
+    checkinItem.style.cursor = 'default';
+    const checkinMeta = `最后更新：YOYO · ${dateStr}`;
+    checkinItem.innerHTML = `
+      <div class="task-checkbox checked" style="pointer-events:none;">&#10003;</div>
+      <div class="task-info">
+        <div class="task-name">每日签到</div>
+        <div class="task-meta">${checkinMeta}</div>
+      </div>
+      <div class="task-points">+2</div>
+    `;
+  } else if (canCheckin) {
+    checkinItem.style.cursor = 'pointer';
+    checkinItem.onclick = () => doCheckinForDate(dateStr);
+    const hint = dateStr === today ? '点击签到' : '点击补签';
+    checkinItem.innerHTML = `
+      <div class="task-checkbox"></div>
+      <div class="task-info">
+        <div class="task-name">每日签到</div>
+        <div class="task-meta">${hint}</div>
+      </div>
+      <div class="task-points">+2</div>
+    `;
+  } else if (tooOld) {
+    checkinItem.style.opacity = '0.5';
+    checkinItem.style.cursor = 'default';
+    checkinItem.innerHTML = `
+      <div class="task-checkbox" style="pointer-events:none;"></div>
+      <div class="task-info">
+        <div class="task-name">每日签到</div>
+        <div class="task-meta" style="color:var(--danger);">已超过7天不可补签</div>
+      </div>
+      <div class="task-points">+2</div>
+    `;
+  } else {
+    checkinItem.style.opacity = '0.7';
+    checkinItem.style.cursor = 'default';
+    checkinItem.innerHTML = `
+      <div class="task-checkbox" style="pointer-events:none;"></div>
+      <div class="task-info">
+        <div class="task-name">每日签到</div>
+        <div class="task-meta">该任务仅能YOYO本人完成</div>
+      </div>
+      <div class="task-points">+2</div>
+    `;
+  }
   container.appendChild(checkinItem);
 
   showPage('page-day');
