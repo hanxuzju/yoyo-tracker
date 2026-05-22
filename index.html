@@ -558,6 +558,149 @@
       margin-top: 2px;
     }
 
+    /* Toggle switch */
+    .toggle-switch { cursor: pointer; }
+    .toggle-switch-track {
+      width: 44px; height: 24px;
+      border-radius: 12px;
+      background: var(--border);
+      position: relative;
+      transition: background 0.2s;
+    }
+    .toggle-switch.active .toggle-switch-track { background: var(--success); }
+    .toggle-switch-thumb {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 2px; left: 2px;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.active .toggle-switch-thumb { left: 22px; }
+
+    /* Notes config */
+    .notes-toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .notes-config { margin-top: 8px; }
+    .notes-item-chip {
+      display: inline-flex; align-items: center;
+      background: #E8F0FE; color: var(--primary);
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 0.8125rem; margin: 4px 4px 4px 0;
+      gap: 4px;
+    }
+    .notes-item-remove {
+      background: none; border: none;
+      color: var(--danger); font-size: 0.875rem;
+      cursor: pointer; padding: 0; line-height: 1;
+    }
+    .notes-add-row { display: flex; gap: 8px; margin-top: 8px; }
+    .notes-add-input { flex: 1; }
+    .btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
+
+    /* Note select sheet */
+    .note-select-sheet { max-height: 80vh; }
+    .note-select-task-name {
+      font-size: 0.9375rem; font-weight: 500;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .note-select-list {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .note-select-item {
+      padding: 8px 14px; border-radius: 8px;
+      border: 1.5px solid var(--border);
+      font-size: 0.8125rem; cursor: pointer;
+      background: var(--card); transition: all 0.15s;
+      user-select: none; -webkit-user-select: none;
+    }
+    .note-select-item.selected {
+      border-color: var(--success);
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .note-select-item.item-other {
+      border-color: #FFF3CD;
+      color: #856404;
+    }
+    .note-select-item.item-other.selected {
+      background: #FFF3CD;
+      border-color: #ffc107;
+      color: #856404;
+      font-weight: 500;
+    }
+    .note-custom-input-wrap { margin-bottom: 16px; }
+
+    /* Task note display */
+    .task-note-tags {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      margin-top: 4px;
+    }
+    .task-note-tag {
+      font-size: 0.6875rem;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .task-note-tag.tag-custom {
+      background: #FFF3CD;
+      color: #856404;
+    }
+
+    /* Task notes indicator in manage list */
+    .task-notes-indicator {
+      font-size: 0.625rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #FFF3CD;
+      color: #856404;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
+    /* Stats note drilldown */
+    .stats-task-name-clickable { cursor: pointer; }
+    .stats-note-icon {
+      font-size: 0.6875rem;
+      opacity: 0.5;
+      margin-left: 2px;
+    }
+    .drilldown-task-name {
+      font-size: 1rem; font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .drilldown-total {
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+    .drilldown-item-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px; font-size: 0.8125rem;
+    }
+    .drilldown-item-name { min-width: 60px; font-weight: 500; }
+    .drilldown-bar-wrap {
+      flex: 1; height: 8px;
+      background: var(--bg); border-radius: 4px;
+      overflow: hidden;
+    }
+    .drilldown-bar {
+      height: 100%; background: var(--primary);
+      border-radius: 4px; min-width: 4px;
+    }
+    .drilldown-item-count {
+      min-width: 80px; text-align: right;
+      color: var(--text-light); font-size: 0.75rem;
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center;
@@ -1168,7 +1311,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.24</span>
+      <span class="text-light" id="app-version">v1.25</span>
     </div>
   </div>
   <div class="profile-actions">
@@ -1265,6 +1408,24 @@
         </div>
       </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">备注设置</label>
+      <div class="notes-toggle-row">
+        <span>开启备注</span>
+        <div class="toggle-switch" id="notes-toggle" onclick="toggleNotesSwitch('')">
+          <div class="toggle-switch-track"><div class="toggle-switch-thumb"></div></div>
+        </div>
+      </div>
+      <div class="notes-config" id="notes-config" style="display:none;">
+        <div class="form-label" style="margin-top:12px;">推荐备注内容</div>
+        <div class="notes-items-list" id="notes-items-list"></div>
+        <div class="notes-add-row">
+          <input class="form-input notes-add-input" id="notes-add-input" placeholder="输入备注选项，如：跑步" maxlength="10">
+          <button class="btn btn-sm btn-primary" onclick="addNotesItem('')">添加</button>
+        </div>
+        <div class="text-xs text-light" style="margin-top:4px;">「其他」为内置选项，无需手动添加</div>
+      </div>
+    </div>
     <button class="btn btn-primary btn-block" onclick="addTask()">保存</button>
   </div>
 </div>
@@ -1314,8 +1475,52 @@
         </div>
       </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">备注设置</label>
+      <div class="notes-toggle-row">
+        <span>开启备注</span>
+        <div class="toggle-switch" id="edit-notes-toggle" onclick="toggleNotesSwitch('edit-')">
+          <div class="toggle-switch-track"><div class="toggle-switch-thumb"></div></div>
+        </div>
+      </div>
+      <div class="notes-config" id="edit-notes-config" style="display:none;">
+        <div class="form-label" style="margin-top:12px;">推荐备注内容</div>
+        <div class="notes-items-list" id="edit-notes-items-list"></div>
+        <div class="notes-add-row">
+          <input class="form-input notes-add-input" id="edit-notes-add-input" placeholder="输入备注选项，如：跑步" maxlength="10">
+          <button class="btn btn-sm btn-primary" onclick="addNotesItem('edit-')">添加</button>
+        </div>
+        <div class="text-xs text-light" style="margin-top:4px;">「其他」为内置选项，无需手动添加</div>
+      </div>
+    </div>
     <button class="btn btn-primary btn-block" onclick="saveEditTask()">保存</button>
     <button class="btn btn-danger btn-block mt-1" onclick="deleteEditTask()">删除任务</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-note-select">
+  <div class="modal-content note-select-sheet">
+    <div class="modal-header">
+      <span class="modal-title" id="note-select-title">选择备注</span>
+      <button class="modal-close" onclick="cancelNoteSelect()">&times;</button>
+    </div>
+    <div class="note-select-task-name" id="note-select-task-label"></div>
+    <div class="note-select-list" id="note-select-list"></div>
+    <div class="note-custom-input-wrap" id="note-custom-input-wrap" style="display:none;">
+      <label class="form-label" style="font-size:0.8125rem;">其他（手动输入）</label>
+      <input class="form-input" id="note-custom-input" maxlength="10" placeholder="最多10个字，非必填">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="confirmNoteSelect()">确认完成</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-note-drilldown">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title" id="drilldown-title">备注详情</span>
+      <button class="modal-close" onclick="closeModal('modal-note-drilldown')">&times;</button>
+    </div>
+    <div id="drilldown-body"></div>
   </div>
 </div>
 
@@ -1534,6 +1739,7 @@ function loadLocalCache() {
       state.checkins = saved.checkins || {};
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
+        if (!t.notes) t.notes = { enabled: false, items: [] };
       });
       return true;
     }
@@ -1559,6 +1765,7 @@ async function loadFromSupabase() {
       state.checkins = saved.checkins || {};
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
+        if (!t.notes) t.notes = { enabled: false, items: [] };
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         tasks: state.tasks,
@@ -1784,6 +1991,11 @@ function openModal(id) {
     document.getElementById('input-task-start').value = '';
     document.getElementById('input-task-end').value = '';
     document.querySelectorAll('#periodic-days .day-chip').forEach(c => c.classList.remove('active'));
+    currentNotesItems = [];
+    renderNotesItems('');
+    document.getElementById('notes-toggle').classList.remove('active');
+    document.getElementById('notes-config').style.display = 'none';
+    document.getElementById('notes-add-input').value = '';
   }
   if (id === 'modal-changelog') {
     renderChangelog();
@@ -2260,6 +2472,20 @@ function showDayDetail(dateStr) {
     const editorInfo = rec && rec.lastEditedAt
       ? `最后更新：${rec.lastEditor} · ${new Date(rec.lastEditedAt).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
       : '点击左侧圆圈标记完成';
+    const hasNotes = completed && task.notes && task.notes.enabled && rec && (rec.noteItems && rec.noteItems.length > 0 || rec.customNote);
+    const noteLabels = [];
+    if (hasNotes && rec.noteItems) {
+      rec.noteItems.forEach(ni => {
+        if (ni === '__other__') {
+          if (rec.customNote) noteLabels.push({ text: rec.customNote, isCustom: true });
+        } else {
+          noteLabels.push({ text: ni, isCustom: false });
+        }
+      });
+    }
+    const noteTagsHtml = noteLabels.length > 0
+      ? `<div class="task-note-tags">${noteLabels.map(n => `<span class="task-note-tag${n.isCustom ? ' tag-custom' : ''}">${n.text}</span>`).join('')}</div>`
+      : '';
     const item = document.createElement('div');
     item.className = 'task-item';
     item.onclick = () => toggleTask(dateStr, task.id);
@@ -2270,6 +2496,7 @@ function showDayDetail(dateStr) {
       <div class="task-info">
         <div class="task-name">${task.name}</div>
         <div class="task-meta">${editorInfo}</div>
+        ${noteTagsHtml}
       </div>
       <div class="task-points">+${task.points}</div>
     `;
@@ -2340,35 +2567,171 @@ function showDayDetail(dateStr) {
 function toggleTask(dateStr, taskId) {
   if (!state.records[dateStr]) state.records[dateStr] = {};
   const rec = state.records[dateStr][taskId];
+  const task = state.tasks.find(t => t.id === taskId);
   const role = getRoleById(state.currentRole);
-  let becameCompleted = false;
 
-  if (rec) {
-    rec.completed = !rec.completed;
+  // Case 1: already completed → uncomplete (no note sheet)
+  if (rec && rec.completed) {
+    rec.completed = false;
     rec.lastEditor = role.name;
     rec.lastEditedAt = now();
-    becameCompleted = rec.completed;
+    saveData();
+    showDayDetail(dateStr);
+    showToast('已更新');
+    return;
+  }
+
+  // Case 2: task has notes enabled → show note selection sheet
+  if (task && task.notes && task.notes.enabled) {
+    openNoteSelectSheet(dateStr, taskId, task);
+    return;
+  }
+
+  // Case 3: no notes → direct completion (original behavior)
+  if (rec) {
+    rec.completed = true;
+    rec.lastEditor = role.name;
+    rec.lastEditedAt = now();
   } else {
     state.records[dateStr][taskId] = {
       completed: true,
       lastEditor: role.name,
       lastEditedAt: now()
     };
-    becameCompleted = true;
   }
-
   saveData();
   showDayDetail(dateStr);
-  if (becameCompleted) {
-    showToast(getEncourageMsg());
-  } else {
-    showToast('已更新');
+  showToast(getEncourageMsg());
+}
+
+// --- Note select sheet ---
+let pendingNoteDateStr = null;
+let pendingNoteTaskId = null;
+
+function openNoteSelectSheet(dateStr, taskId, task) {
+  pendingNoteDateStr = dateStr;
+  pendingNoteTaskId = taskId;
+  document.getElementById('note-select-task-label').textContent = task.name;
+  const rec = state.records[dateStr] ? state.records[dateStr][taskId] : null;
+  const existingNoteItems = rec ? (rec.noteItems || []) : [];
+  const existingCustomNote = rec ? (rec.customNote || '') : '';
+
+  const listEl = document.getElementById('note-select-list');
+  listEl.innerHTML = '';
+  const allItems = [...task.notes.items, '__other__'];
+  allItems.forEach(item => {
+    const isOther = item === '__other__';
+    const displayName = isOther ? '其他（需手动输入）' : item;
+    const wasSelected = isOther ? (existingNoteItems.includes('__other__') || existingCustomNote) : existingNoteItems.includes(item);
+    const el = document.createElement('div');
+    el.className = 'note-select-item' + (isOther ? ' item-other' : '') + (wasSelected ? ' selected' : '');
+    el.textContent = displayName;
+    el.dataset.itemKey = item;
+    el.onclick = () => toggleNoteSelectItem(el);
+    listEl.appendChild(el);
+  });
+
+  const otherSelected = existingNoteItems.includes('__other__') || existingCustomNote;
+  document.getElementById('note-custom-input-wrap').style.display = otherSelected ? 'block' : 'none';
+  document.getElementById('note-custom-input').value = existingCustomNote;
+
+  openModal('modal-note-select');
+}
+
+function toggleNoteSelectItem(el) {
+  el.classList.toggle('selected');
+  const isOther = el.dataset.itemKey === '__other__';
+  if (isOther) {
+    const isSelected = el.classList.contains('selected');
+    document.getElementById('note-custom-input-wrap').style.display = isSelected ? 'block' : 'none';
+    if (!isSelected) {
+      document.getElementById('note-custom-input').value = '';
+    }
   }
+}
+
+function confirmNoteSelect() {
+  const selectedEls = document.querySelectorAll('#note-select-list .note-select-item.selected');
+  const noteItems = [];
+  let hasOther = false;
+  selectedEls.forEach(el => {
+    const key = el.dataset.itemKey;
+    if (key === '__other__') {
+      hasOther = true;
+      noteItems.push('__other__');
+    } else {
+      noteItems.push(key);
+    }
+  });
+
+  if (noteItems.length === 0) {
+    showToast('请至少选择一个备注项');
+    return;
+  }
+
+  const customNote = document.getElementById('note-custom-input').value.trim();
+  const role = getRoleById(state.currentRole);
+  const dateStr = pendingNoteDateStr;
+  const taskId = pendingNoteTaskId;
+
+  if (!state.records[dateStr]) state.records[dateStr] = {};
+  state.records[dateStr][taskId] = {
+    completed: true,
+    lastEditor: role.name,
+    lastEditedAt: now(),
+    noteItems: noteItems,
+    customNote: customNote
+  };
+
+  closeModal('modal-note-select');
+  saveData();
+  showDayDetail(dateStr);
+  showToast(getEncourageMsg());
+}
+
+function cancelNoteSelect() {
+  closeModal('modal-note-select');
 }
 
 // ===================== TASK MANAGEMENT =====================
 let currentValidityType = 'permanent';
 let currentEditValidityType = 'permanent';
+let currentNotesItems = [];
+let currentEditNotesItems = [];
+
+// --- Notes management ---
+function toggleNotesSwitch(prefix) {
+  const toggleEl = document.getElementById(prefix + 'notes-toggle');
+  const configEl = document.getElementById(prefix + 'notes-config');
+  toggleEl.classList.toggle('active');
+  const isActive = toggleEl.classList.contains('active');
+  configEl.style.display = isActive ? 'block' : 'none';
+}
+
+function addNotesItem(prefix) {
+  const input = document.getElementById(prefix + 'notes-add-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const arr = prefix === '' ? currentNotesItems : currentEditNotesItems;
+  if (arr.includes(val)) { showToast('该备注项已存在'); return; }
+  arr.push(val);
+  renderNotesItems(prefix);
+  input.value = '';
+}
+
+function removeNotesItem(prefix, index) {
+  const arr = prefix === '' ? currentNotesItems : currentEditNotesItems;
+  arr.splice(index, 1);
+  renderNotesItems(prefix);
+}
+
+function renderNotesItems(prefix) {
+  const listEl = document.getElementById(prefix + 'notes-items-list');
+  const arr = prefix === '' ? currentNotesItems : currentEditNotesItems;
+  listEl.innerHTML = arr.map((item, i) =>
+    `<div class="notes-item-chip"><span>${item}</span><button class="notes-item-remove" onclick="removeNotesItem('${prefix}', ${i})">&times;</button></div>`
+  ).join('');
+}
 
 function setValidityType(type) {
   currentValidityType = type;
@@ -2437,8 +2800,9 @@ function renderTaskManage() {
         <div class="font-bold" style="display:flex; align-items:center; flex-wrap:wrap;">
           ${task.name}
           <span class="task-validity-tag">${vLabel}</span>
+          ${task.notes && task.notes.enabled ? '<span class="task-notes-indicator">备注</span>' : ''}
         </div>
-        <div class="text-sm text-light">${task.points} 积分</div>
+        <div class="text-sm text-light">${task.points} 积分${task.notes && task.notes.enabled && task.notes.items.length > 0 ? ' · ' + task.notes.items.join('/') : ''}</div>
       </div>
       <span class="text-light">&#8250;</span>
     `;
@@ -2465,11 +2829,19 @@ function addTask() {
     showToast('请至少选择一天'); return;
   }
 
-  state.tasks.push({ id: genId(), name, points, createdAt: now(), validity });
+  const notesToggle = document.getElementById('notes-toggle');
+  const notesEnabled = notesToggle.classList.contains('active');
+  const notes = { enabled: notesEnabled, items: notesEnabled ? [...currentNotesItems] : [] };
+
+  state.tasks.push({ id: genId(), name, points, createdAt: now(), validity, notes });
   saveData();
   closeModal('modal-add-task');
   document.getElementById('input-task-name').value = '';
   document.getElementById('input-task-points').value = '5';
+  currentNotesItems = [];
+  renderNotesItems('');
+  notesToggle.classList.remove('active');
+  document.getElementById('notes-config').style.display = 'none';
   renderTaskManage();
   showToast('任务已添加');
 }
@@ -2501,6 +2873,14 @@ function openEditTask(task) {
     el.classList.toggle('active', v.type === 'periodic' && v.days && v.days.includes(day));
   });
 
+  // Load notes config
+  const n = task.notes || { enabled: false, items: [] };
+  currentEditNotesItems = [...n.items];
+  const editNotesToggle = document.getElementById('edit-notes-toggle');
+  editNotesToggle.classList.toggle('active', n.enabled);
+  document.getElementById('edit-notes-config').style.display = n.enabled ? 'block' : 'none';
+  renderNotesItems('edit-');
+
   openModal('modal-edit-task');
 }
 
@@ -2523,11 +2903,15 @@ function saveEditTask() {
     showToast('请至少选择一天'); return;
   }
 
+  const editNotesToggle = document.getElementById('edit-notes-toggle');
+  const notesEnabled = editNotesToggle.classList.contains('active');
+
   const task = state.tasks.find(t => t.id === id);
   if (task) {
     task.name = name;
     task.points = points;
     task.validity = validity;
+    task.notes = { enabled: notesEnabled, items: notesEnabled ? [...currentEditNotesItems] : [] };
     saveData();
     closeModal('modal-edit-task');
     renderTaskManage();
@@ -2793,6 +3177,7 @@ function renderStatistics() {
   state.tasks.forEach(task => {
     let completedCount = 0;
     let pointsEarned = 0;
+    const noteDistribution = {};
 
     const allDates = Object.keys(state.records).sort();
     let checkDates = allDates;
@@ -2806,13 +3191,30 @@ function renderStatistics() {
       if (rec && rec[task.id] && rec[task.id].completed) {
         completedCount++;
         pointsEarned += task.points;
+        // Collect note distribution
+        if (task.notes && task.notes.enabled) {
+          const taskRec = rec[task.id];
+          if (taskRec.noteItems) {
+            taskRec.noteItems.forEach(ni => {
+              if (ni === '__other__') {
+                const label = taskRec.customNote || '其他';
+                noteDistribution[label] = (noteDistribution[label] || 0) + 1;
+              } else {
+                noteDistribution[ni] = (noteDistribution[ni] || 0) + 1;
+              }
+            });
+          }
+        }
       }
     });
 
     taskStats.push({
+      taskId: task.id,
       name: task.name,
       completedCount,
-      pointsEarned
+      pointsEarned,
+      notes: task.notes || { enabled: false, items: [] },
+      noteDistribution
     });
 
     totalCompleted += completedCount;
@@ -2827,8 +3229,12 @@ function renderStatistics() {
   } else {
     taskStats.forEach(ts => {
       const tr = document.createElement('tr');
+      const hasNotes = ts.notes.enabled && ts.completedCount > 0;
+      const nameCell = hasNotes
+        ? `<td class="stats-task-name-clickable" onclick="showNoteDrilldown('${ts.taskId}')">${ts.name}<span class="stats-note-icon">📋</span></td>`
+        : `<td>${ts.name}</td>`;
       tr.innerHTML = `
-        <td>${ts.name}</td>
+        ${nameCell}
         <td style="text-align:center;" class="num">${ts.completedCount}</td>
         <td style="text-align:center;" class="num">${ts.pointsEarned}</td>
       `;
@@ -2864,6 +3270,65 @@ function renderStatistics() {
 
   // AI Summary
   generateAiSummary(taskStats, totalPoints, totalCompleted, range);
+}
+
+function showNoteDrilldown(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task || !task.notes || !task.notes.enabled) return;
+  const range = getStatsDateRange();
+  const distribution = {};
+  let totalCount = 0;
+
+  const allDates = Object.keys(state.records).sort();
+  let checkDates = allDates;
+  if (range.start && range.end) {
+    checkDates = allDates.filter(d => d >= range.start && d <= range.end);
+  }
+
+  checkDates.forEach(dateStr => {
+    if (!isTaskValidOnDate(task, dateStr)) return;
+    const rec = state.records[dateStr];
+    if (rec && rec[taskId] && rec[taskId].completed) {
+      totalCount++;
+      const taskRec = rec[taskId];
+      if (taskRec.noteItems) {
+        taskRec.noteItems.forEach(ni => {
+          if (ni === '__other__') {
+            const label = taskRec.customNote || '其他';
+            distribution[label] = (distribution[label] || 0) + 1;
+          } else {
+            distribution[ni] = (distribution[ni] || 0) + 1;
+          }
+        });
+      }
+    }
+  });
+
+  const body = document.getElementById('drilldown-body');
+  document.getElementById('drilldown-title').textContent = task.name + ' · 备注详情';
+
+  const sortedEntries = Object.entries(distribution).sort((a, b) => b[1] - a[1]);
+  const maxCount = sortedEntries.length > 0 ? sortedEntries[0][1] : 1;
+
+  let html = `<div class="drilldown-task-name">${task.name}</div>`;
+  html += `<div class="drilldown-total">共完成 ${totalCount} 次</div>`;
+  if (sortedEntries.length === 0) {
+    html += `<div class="drilldown-item-row" style="color:var(--text-light);">暂无备注数据</div>`;
+  } else {
+    html += '<div class="drilldown-items">';
+    sortedEntries.forEach(([name, count]) => {
+      const pct = totalCount > 0 ? Math.round(count / totalCount * 100) : 0;
+      const barWidth = Math.round(count / maxCount * 100);
+      html += `<div class="drilldown-item-row">
+        <span class="drilldown-item-name">${name}</span>
+        <div class="drilldown-bar-wrap"><div class="drilldown-bar" style="width:${barWidth}%"></div></div>
+        <span class="drilldown-item-count">${count}次 (${pct}%)</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  body.innerHTML = html;
+  openModal('modal-note-drilldown');
 }
 
 function toggleAiSummary() {
@@ -2919,14 +3384,29 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
     lines.push(`「${bestTask.name}」最棒，完成 ${bestTask.completedCount} 次。`);
   }
 
+  // Note analysis
+  const notesTasks = taskStats.filter(ts => ts.notes && ts.notes.enabled && ts.completedCount > 0 && Object.keys(ts.noteDistribution).length > 0);
+  notesTasks.forEach(ts => {
+    const sortedNotes = Object.entries(ts.noteDistribution).sort((a, b) => b[1] - a[1]);
+    const top = sortedNotes[0];
+    const topPercent = Math.round(top[1] / ts.completedCount * 100);
+    if (sortedNotes.length === 1) {
+      lines.push(`「${ts.name}」几乎都在做「${top[0]}」（占比${topPercent}%）。`);
+    } else {
+      const otherItems = sortedNotes.slice(1, 3).map(e => `「${e[0]}」${e[1]}次`).join('、');
+      lines.push(`「${ts.name}」最常做的是「${top[0]}」（${top[1]}次，占比${topPercent}%），还做了${otherItems}。`);
+    }
+  });
+
   lines.push('每天坚持一点点，积少成多就能看到变化！');
 
   container.innerHTML = lines.map(s => `<p>${s}</p>`).join('');
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.24';
+const APP_VERSION = 'v1.25';
 const CHANGELOG = [
+  { ver: 'v1.25', desc: '新增任务备注功能：管理员可开启备注并设置推荐选项，完成时多选备注，统计下钻分析', time: '2026-05-22 10:30:00' },
   { ver: 'v1.24', desc: '新增版本号与更新日志功能', time: '2026-05-18 14:30:00' },
   { ver: 'v1.23', desc: '修复 JS 语法错误导致页面无响应', time: '2026-05-18 13:54:33' },
   { ver: 'v1.22', desc: '单日任务页增加前/后天导航及相对日期描述', time: '2026-05-18 13:49:41' },
@@ -3037,7 +3517,7 @@ function resetData() {
 // ===================== EXPORT / IMPORT =====================
 function getExportJSON() {
   return JSON.stringify({
-    version: 2,
+    version: 3,
     exportAt: now(),
     tasks: state.tasks,
     records: state.records,
@@ -3103,6 +3583,7 @@ function parseAndImport(jsonText) {
         throw new Error(`第 ${i+1} 个任务数据不完整`);
       }
       if (!t.validity) t.validity = { type: 'permanent' };
+      if (!t.notes) t.notes = { enabled: false, items: [] };
     });
 
     if (!confirm(`确定要导入数据吗？当前 ${state.tasks.length} 个任务、${Object.keys(state.records).length} 天记录将被覆盖。`)) {
