@@ -1388,11 +1388,11 @@
       <div class="validity-detail" id="validity-shortTerm">
         <div class="form-group" style="margin-bottom:10px;">
           <label class="form-label" style="font-size:0.8125rem;">开始日期</label>
-          <input class="form-input" id="input-task-start" type="date">
+          <input class="form-input" id="task-start" type="date">
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label class="form-label" style="font-size:0.8125rem;">结束日期</label>
-          <input class="form-input" id="input-task-end" type="date">
+          <input class="form-input" id="task-end" type="date">
         </div>
       </div>
       <div class="validity-detail" id="validity-periodic">
@@ -1759,6 +1759,12 @@ async function loadFromSupabase() {
     if (error && error.code !== 'PGRST116') throw error;
     if (data && data.value) {
       const saved = data.value;
+      const cloudUpdated = saved.updatedAt;
+      const localUpdated = localStorage.getItem('yoyo_tracker_sync_time');
+      // 本地数据较新时保留本地，避免覆盖未同步的更改
+      if (cloudUpdated && localUpdated && cloudUpdated <= localUpdated) {
+        return true;
+      }
       state.tasks = saved.tasks || [];
       state.records = saved.records || {};
       state.redemptions = saved.redemptions || [];
@@ -1773,8 +1779,8 @@ async function loadFromSupabase() {
         redemptions: state.redemptions,
         checkins: state.checkins
       }));
-      if (saved.updatedAt) {
-        localStorage.setItem('yoyo_tracker_sync_time', saved.updatedAt);
+      if (cloudUpdated) {
+        localStorage.setItem('yoyo_tracker_sync_time', cloudUpdated);
       }
       return true;
     }
@@ -1916,6 +1922,7 @@ function setupRealtime() {
         state.checkins = saved.checkins || {};
         state.tasks.forEach(t => {
           if (!t.validity) t.validity = { type: 'permanent' };
+          if (!t.notes) t.notes = { enabled: false, items: [] };
         });
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           tasks: state.tasks,
@@ -1988,8 +1995,8 @@ function openModal(id) {
   // Reset add-task validity UI
   if (id === 'modal-add-task') {
     setValidityType('permanent');
-    document.getElementById('input-task-start').value = '';
-    document.getElementById('input-task-end').value = '';
+    document.getElementById('task-start').value = '';
+    document.getElementById('task-end').value = '';
     document.querySelectorAll('#periodic-days .day-chip').forEach(c => c.classList.remove('active'));
     currentNotesItems = [];
     renderNotesItems('');
@@ -3404,8 +3411,9 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.25';
+const APP_VERSION = 'v1.25.1';
 const CHANGELOG = [
+  { ver: 'v1.25.1', desc: '修复新建短期任务保存无响应；修复云端同步可能覆盖本地新增任务的问题', time: '2026-05-22 11:30:00' },
   { ver: 'v1.25', desc: '新增任务备注功能：管理员可开启备注并设置推荐选项，完成时多选备注，统计下钻分析', time: '2026-05-22 10:30:00' },
   { ver: 'v1.24', desc: '新增版本号与更新日志功能', time: '2026-05-18 14:30:00' },
   { ver: 'v1.23', desc: '修复 JS 语法错误导致页面无响应', time: '2026-05-18 13:54:33' },
