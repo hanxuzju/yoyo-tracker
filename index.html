@@ -1566,7 +1566,7 @@
     <button class="btn btn-outline btn-block" onclick="triggerImport()">&#128194; 导入数据</button>
     <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importData(this)">
   </div>
-  <div class="card" style="margin-top:16px;">
+  <div class="card" id="ai-config-card" style="margin-top:16px;">
     <div class="card-header">
       <span class="card-title">AI 分析设置</span>
     </div>
@@ -4298,6 +4298,8 @@ function renderProfile() {
   document.getElementById('profile-role-name').textContent = `${role.name} · ${role.type === 'admin' ? '管理员' : role.type === 'child' ? '孩子' : '家庭成员'}`;
   const resetCard = document.getElementById('profile-reset-card');
   if (resetCard) resetCard.style.display = isAdmin() ? 'block' : 'none';
+  const aiConfigCard = document.getElementById('ai-config-card');
+  if (aiConfigCard) aiConfigCard.style.display = isAdmin() ? 'block' : 'none';
 
   // Backup reminder
   const banner = document.getElementById('backup-banner');
