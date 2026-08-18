@@ -637,6 +637,87 @@
     }
     .note-custom-input-wrap { margin-bottom: 16px; }
 
+    /* Proof chips in day detail */
+    .proof-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 6px;
+    }
+    .proof-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.6875rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .proof-chip.add {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Proof modal */
+    .proof-sheet-list {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 16px;
+      min-height: 60px;
+    }
+    .proof-item {
+      position: relative;
+      width: 80px; height: 80px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .proof-item img { width: 100%; height: 100%; object-fit: cover; }
+    .proof-audio-item {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--primary); background: #E8F0FE; border-color: var(--primary);
+    }
+    .proof-audio-icon { font-size: 1.5rem; }
+    .proof-audio-duration { font-size: 0.625rem; margin-top: 2px; }
+    .proof-delete {
+      position: absolute; top: 2px; right: 2px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.5); color: #fff;
+      font-size: 0.875rem; line-height: 1;
+      cursor: pointer;
+    }
+    .proof-actions {
+      display: flex; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .proof-btn {
+      flex: 1;
+      padding: 10px 0;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      text-align: center;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .proof-btn.recording {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .proof-record-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--danger);
+      margin-bottom: 12px;
+    }
+    .proof-viewer-img { width: 100%; border-radius: 10px; }
+    .proof-viewer-audio { width: 100%; margin-top: 10px; }
+
     /* Task note display */
     .task-note-tags {
       display: flex; flex-wrap: wrap; gap: 4px;
@@ -665,6 +746,37 @@
       margin-left: 6px;
       font-weight: 500;
     }
+
+    /* Task category tag */
+    .task-category-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.625rem;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .task-category-tag .icon { font-size: 0.75rem; }
+
+    /* Category statistics */
+    .category-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 12px 16px;
+    }
+    .category-stat-item {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .category-stat-icon { font-size: 1.25rem; }
+    .category-stat-name { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
+    .category-stat-points { font-size: 0.9375rem; font-weight: 600; color: var(--primary); margin-top: 2px; }
 
     /* Stats note drilldown */
     .stats-task-name-clickable { cursor: pointer; }
@@ -924,6 +1036,31 @@
       display: none;
     }
     .validity-detail.active { display: block; }
+    .category-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .category-option {
+      flex: 1;
+      min-width: 70px;
+      padding: 8px 6px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.75rem;
+      cursor: pointer;
+      background: var(--card);
+      transition: all 0.15s;
+      color: var(--text-light);
+    }
+    .category-option .icon { font-size: 1.125rem; display: block; margin-bottom: 2px; }
+    .category-option.active {
+      border-color: var(--primary);
+      background: #E8F0FE;
+      color: var(--primary);
+      font-weight: 500;
+    }
     .day-selector {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -1039,6 +1176,20 @@
       gap: 10px;
       padding: 0 16px 16px;
     }
+    .backup-banner {
+      background: linear-gradient(135deg, #FFF9E6 0%, #FFF3CD 100%);
+      border: 1.5px solid #FFE4A1;
+      border-radius: var(--radius);
+      margin: 12px 16px 0;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .backup-banner-text { flex: 1; min-width: 0; }
+    .backup-banner-title { font-weight: 600; font-size: 0.9375rem; color: #856404; }
+    .backup-banner-desc { font-size: 0.75rem; color: #B38F00; margin-top: 2px; }
     .hidden-input {
       position: absolute;
       opacity: 0;
@@ -1274,6 +1425,14 @@
       <div class="label">完成次数</div>
     </div>
   </div>
+  <div class="card" id="category-stats-card" style="margin-top:16px;">
+    <div class="card-header">
+      <span class="card-title">分类统计</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div class="category-stats-grid" id="category-stats-grid"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ===================== SHARE PAGE ===================== -->
@@ -1300,6 +1459,13 @@
     <h1>我的</h1>
     <div class="sub" id="profile-role-name"></div>
   </div>
+  <div class="backup-banner" id="backup-banner" style="display:none;">
+    <div class="backup-banner-text">
+      <div class="backup-banner-title">建议备份数据</div>
+      <div class="backup-banner-desc" id="backup-banner-desc">距离上次备份已超过 30 天</div>
+    </div>
+    <button class="btn btn-sm btn-primary" onclick="exportData()">立即备份</button>
+  </div>
   <div class="card" style="margin-top:16px;">
     <div class="list-item flex-between" onclick="showPage('page-share')" id="profile-share-row">
       <span>分享链接给家庭成员</span>
@@ -1311,7 +1477,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.25</span>
+      <span class="text-light" id="app-version">v1.26</span>
     </div>
   </div>
   <div class="profile-actions">
@@ -1379,6 +1545,11 @@
       <input class="form-input" id="input-task-points" type="number" placeholder="例如：5" value="5">
     </div>
     <div class="form-group">
+      <label class="form-label">任务分类</label>
+      <div class="category-options" id="task-category-options"></div>
+      <input type="hidden" id="input-task-category" value="other">
+    </div>
+    <div class="form-group">
       <label class="form-label">有效期设置</label>
       <div class="validity-options">
         <div class="validity-option active" data-type="permanent" onclick="setValidityType('permanent')">永久有效</div>
@@ -1444,6 +1615,11 @@
     <div class="form-group">
       <label class="form-label">分值（积分）</label>
       <input class="form-input" id="edit-task-points" type="number">
+    </div>
+    <div class="form-group">
+      <label class="form-label">任务分类</label>
+      <div class="category-options" id="edit-task-category-options"></div>
+      <input type="hidden" id="edit-task-category" value="other">
     </div>
     <div class="form-group">
       <label class="form-label">有效期设置</label>
@@ -1521,6 +1697,35 @@
       <button class="modal-close" onclick="closeModal('modal-note-drilldown')">&times;</button>
     </div>
     <div id="drilldown-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-proof">
+  <div class="modal-content note-select-sheet">
+    <div class="modal-header">
+      <span class="modal-title">添加完成凭证（可选）</span>
+      <button class="modal-close" onclick="skipProofModal()">&times;</button>
+    </div>
+    <div class="note-select-task-name" id="proof-task-label"></div>
+    <div class="proof-sheet-list" id="proof-list"></div>
+    <div class="proof-actions">
+      <div class="proof-btn" onclick="triggerImageProof()">&#128247; 拍照/选图</div>
+      <div class="proof-btn" id="proof-record-btn" onclick="toggleVoiceProof()">&#127908; 录音</div>
+    </div>
+    <div class="proof-record-hint" id="proof-record-hint" style="display:none;">正在录音… 点击停止</div>
+    <button class="btn btn-primary btn-block" onclick="saveProofModal()">保存</button>
+    <button class="btn btn-outline btn-block mt-1" onclick="skipProofModal()">跳过</button>
+    <input type="file" id="proof-image-input" class="hidden-input" accept="image/*" capture="environment" onchange="onImageProofSelected(this)">
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-proof-viewer">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title" id="proof-viewer-title">凭证</span>
+      <button class="modal-close" onclick="closeModal('modal-proof-viewer')">&times;</button>
+    </div>
+    <div id="proof-viewer-body"></div>
   </div>
 </div>
 
@@ -1627,6 +1832,15 @@ const ROLES = [
   { id: 'grandpa2', name: '姥爷', type: 'elder', avatar: '&#128116;' },
   { id: 'grandma2', name: '姥姥', type: 'elder', avatar: '&#128117;' },
   { id: 'yoyo', name: 'YOYO', type: 'child', avatar: '&#128118;' }
+];
+
+const TASK_CATEGORIES = [
+  { id: 'study', name: '学习', icon: '&#128218;', color: '#5B8DEF' },
+  { id: 'sport', name: '运动', icon: '&#127939;', color: '#6BCB77' },
+  { id: 'housework', name: '家务', icon: '&#129529;', color: '#FFA502' },
+  { id: 'reading', name: '阅读', icon: '&#128214;', color: '#9B59B6' },
+  { id: 'art', name: '艺术', icon: '&#127912;', color: '#E84393' },
+  { id: 'other', name: '其他', icon: '&#128161;', color: '#636E72' }
 ];
 
 const STORAGE_KEY = 'yoyo_tracker_v2';
@@ -1748,6 +1962,7 @@ let state = {
   records: {}, // { "2026-05-11": { "taskId": { completed: true, lastEditor: "妈妈", lastEditedAt: "..." } } }
   redemptions: [],
   checkins: {}, // { "2026-05-12": true } — 每日签到记录
+  operationLog: [], // 操作日志：{ action, detail, role, ts }
   currentMonth: new Date(),
   selectedDate: null,
   statsRange: 'week'
@@ -1763,9 +1978,12 @@ function loadLocalCache() {
       state.records = saved.records || {};
       state.redemptions = saved.redemptions || [];
       state.checkins = saved.checkins || {};
+      state.operationLog = saved.operationLog || [];
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
         if (!t.notes) t.notes = { enabled: false, items: [] };
+        if (!t.updatedAt) t.updatedAt = t.createdAt || now();
+        if (!t.category) t.category = 'other';
       });
       return true;
     }
@@ -1787,23 +2005,28 @@ async function loadFromSupabase() {
       const saved = data.value;
       const cloudUpdated = saved.updatedAt;
       const localUpdated = localStorage.getItem('yoyo_tracker_sync_time');
-      // 本地数据较新时保留本地，避免覆盖未同步的更改
+      // 云端数据较旧时直接保留本地，避免覆盖未同步的更改
       if (cloudUpdated && localUpdated && cloudUpdated <= localUpdated) {
         return true;
       }
-      state.tasks = saved.tasks || [];
-      state.records = saved.records || {};
-      state.redemptions = saved.redemptions || [];
-      state.checkins = saved.checkins || {};
+      // 执行记录级合并，保留本地较新的任务和记录
+      state.tasks = mergeTasks(state.tasks, saved.tasks || []);
+      state.records = mergeRecords(state.records, saved.records || {});
+      state.redemptions = mergeRedemptions(state.redemptions, saved.redemptions || []);
+      state.checkins = mergeCheckins(state.checkins, saved.checkins || {});
+      state.operationLog = mergeOperationLogs(state.operationLog || [], saved.operationLog || []);
       state.tasks.forEach(t => {
         if (!t.validity) t.validity = { type: 'permanent' };
         if (!t.notes) t.notes = { enabled: false, items: [] };
+        if (!t.updatedAt) t.updatedAt = t.createdAt || now();
+        if (!t.category) t.category = 'other';
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         tasks: state.tasks,
         records: state.records,
         redemptions: state.redemptions,
-        checkins: state.checkins
+        checkins: state.checkins,
+        operationLog: state.operationLog
       }));
       if (cloudUpdated) {
         localStorage.setItem('yoyo_tracker_sync_time', cloudUpdated);
@@ -1842,6 +2065,7 @@ async function saveToSupabase() {
         records: state.records,
         redemptions: state.redemptions,
         checkins: state.checkins,
+        operationLog: state.operationLog,
         updatedAt: ts
       }
     };
@@ -1891,22 +2115,95 @@ function saveData() {
     tasks: state.tasks,
     records: state.records,
     redemptions: state.redemptions,
-    checkins: state.checkins
+    checkins: state.checkins,
+    operationLog: state.operationLog
   }));
   if (supabaseClient) {
     scheduleSaveToCloud();
   }
 }
 
+// ===================== MERGE HELPERS =====================
+function getTaskTime(t) { return t.updatedAt || t.createdAt || '1970-01-01T00:00:00.000Z'; }
+
+function mergeTasks(local, cloud) {
+  const map = new Map();
+  local.forEach(t => map.set(t.id, t));
+  cloud.forEach(t => {
+    const localT = map.get(t.id);
+    if (!localT || getTaskTime(t) > getTaskTime(localT)) {
+      map.set(t.id, t);
+    }
+  });
+  return Array.from(map.values());
+}
+
+function mergeRecords(local, cloud) {
+  const merged = JSON.parse(JSON.stringify(local));
+  for (const date in cloud) {
+    if (!merged[date]) merged[date] = {};
+    for (const taskId in cloud[date]) {
+      const cloudRec = cloud[date][taskId];
+      const localRec = merged[date][taskId];
+      if (!localRec) {
+        merged[date][taskId] = cloudRec;
+      } else {
+        const cloudTime = cloudRec.lastEditedAt || '1970-01-01T00:00:00.000Z';
+        const localTime = localRec.lastEditedAt || '1970-01-01T00:00:00.000Z';
+        if (cloudTime > localTime) merged[date][taskId] = cloudRec;
+      }
+    }
+  }
+  return merged;
+}
+
+function mergeRedemptions(local, cloud) {
+  const map = new Map();
+  local.forEach(r => map.set(r.id, r));
+  cloud.forEach(r => {
+    const localR = map.get(r.id);
+    if (!localR) {
+      map.set(r.id, r);
+    } else {
+      const cloudTime = r.updatedAt || r.createdAt || '1970-01-01T00:00:00.000Z';
+      const localTime = localR.updatedAt || localR.createdAt || '1970-01-01T00:00:00.000Z';
+      if (cloudTime > localTime) map.set(r.id, r);
+    }
+  });
+  return Array.from(map.values());
+}
+
+function mergeCheckins(local, cloud) {
+  const merged = { ...local };
+  for (const date in cloud) {
+    if (cloud[date] && !merged[date]) merged[date] = cloud[date];
+  }
+  return merged;
+}
+
+function mergeOperationLogs(local, cloud) {
+  const set = new Set();
+  const merged = [];
+  [...local, ...cloud].forEach(entry => {
+    const key = entry.ts + '|' + entry.action + '|' + entry.detail;
+    if (!set.has(key)) {
+      set.add(key);
+      merged.push(entry);
+    }
+  });
+  return merged.sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
+}
+
 function initDemoData() {
   if (state.tasks.length === 0 && (cloudDataStatus === 'empty' || cloudDataStatus === 'error')) {
+    const ts = now();
     state.tasks = [
-      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: now(), validity: { type: 'permanent' } },
-      { id: genId(), name: '数学练习', points: 5, createdAt: now(), validity: { type: 'permanent' } },
-      { id: genId(), name: '练字', points: 3, createdAt: now(), validity: { type: 'permanent' } },
-      { id: genId(), name: '阅读课外书', points: 5, createdAt: now(), validity: { type: 'permanent' } },
-      { id: genId(), name: '体育运动', points: 3, createdAt: now(), validity: { type: 'periodic', days: [1,2,3,4,5,6,7] } },
-      { id: genId(), name: '整理书包/房间', points: 2, createdAt: now(), validity: { type: 'permanent' } }
+      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: ts, updatedAt: ts, category: 'study', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '数学练习', points: 5, createdAt: ts, updatedAt: ts, category: 'study', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '练字', points: 3, createdAt: ts, updatedAt: ts, category: 'art', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '阅读课外书', points: 5, createdAt: ts, updatedAt: ts, category: 'reading', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '体育运动', points: 3, createdAt: ts, updatedAt: ts, category: 'sport', validity: { type: 'periodic', days: [1,2,3,4,5,6,7] }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '整理书包/房间', points: 2, createdAt: ts, updatedAt: ts, category: 'housework', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } }
     ];
     saveData();
   }
@@ -1942,19 +2239,23 @@ function setupRealtime() {
         if (cloudUpdated && localUpdated && cloudUpdated <= localUpdated) {
           return;
         }
-        state.tasks = saved.tasks || [];
-        state.records = saved.records || {};
-        state.redemptions = saved.redemptions || [];
-        state.checkins = saved.checkins || {};
+        state.tasks = mergeTasks(state.tasks, saved.tasks || []);
+        state.records = mergeRecords(state.records, saved.records || {});
+        state.redemptions = mergeRedemptions(state.redemptions, saved.redemptions || []);
+        state.checkins = mergeCheckins(state.checkins, saved.checkins || {});
+        state.operationLog = mergeOperationLogs(state.operationLog || [], saved.operationLog || []);
         state.tasks.forEach(t => {
           if (!t.validity) t.validity = { type: 'permanent' };
           if (!t.notes) t.notes = { enabled: false, items: [] };
+          if (!t.updatedAt) t.updatedAt = t.createdAt || now();
+          if (!t.category) t.category = 'other';
         });
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           tasks: state.tasks,
           records: state.records,
           redemptions: state.redemptions,
-          checkins: state.checkins
+          checkins: state.checkins,
+          operationLog: state.operationLog
         }));
         if (cloudUpdated) {
           localStorage.setItem('yoyo_tracker_sync_time', cloudUpdated);
@@ -1979,9 +2280,29 @@ function fmtDate(d) {
 function todayStr() { return fmtDate(new Date()); }
 
 function getRoleById(id) { return ROLES.find(r => r.id === id); }
+function getTaskCategory(id) { return TASK_CATEGORIES.find(c => c.id === id) || TASK_CATEGORIES[TASK_CATEGORIES.length - 1]; }
+function getCategoryBadgeHTML(task) {
+  const cat = getTaskCategory(task.category);
+  return `<span class="task-category-tag" style="background:${cat.color}1A;color:${cat.color};border:1px solid ${cat.color}4D"><span class="icon">${cat.icon}</span>${cat.name}</span>`;
+}
 function isAdmin() { return state.currentRole === 'admin'; }
 function isChild() { return state.currentRole === 'yoyo'; }
 function canCheckinRole() { return isAdmin() || isChild(); }
+
+function logOperation(action, detail) {
+  if (!state.operationLog) state.operationLog = [];
+  const role = getRoleById(state.currentRole);
+  state.operationLog.push({
+    action,
+    detail: detail || '',
+    role: role ? role.name : '未知',
+    ts: now()
+  });
+  // 限制日志条目数量，避免数据无限增长
+  if (state.operationLog.length > 500) {
+    state.operationLog = state.operationLog.slice(-300);
+  }
+}
 
 function getRoleType(roleId) {
   const role = getRoleById(roleId);
@@ -2030,6 +2351,7 @@ function openModal(id) {
     document.getElementById('notes-toggle').classList.remove('active');
     document.getElementById('notes-config').style.display = 'none';
     document.getElementById('notes-add-input').value = '';
+    renderCategoryOptions('', 'study');
   }
   if (id === 'modal-changelog') {
     renderChangelog();
@@ -2424,6 +2746,7 @@ function doCheckin() {
     return;
   }
   state.checkins[today] = true;
+  logOperation('checkin', `${today} 今日签到`);
   saveData();
   updateCheckinButton();
   renderStats();
@@ -2438,6 +2761,7 @@ function doCheckinForDate(dateStr) {
   const daysDiff = Math.floor((new Date(today + 'T00:00:00') - new Date(dateStr + 'T00:00:00')) / 86400000);
   if (dateStr > today || daysDiff > 7) return;
   state.checkins[dateStr] = true;
+  logOperation('checkin', `${dateStr} ${dateStr === today ? '今日签到' : '补签'}`);
   saveData();
   const isToday = dateStr === today;
   if (isToday) updateCheckinButton();
@@ -2516,6 +2840,18 @@ function showDayDetail(dateStr) {
     const noteTagsHtml = noteLabels.length > 0
       ? `<div class="task-note-tags">${noteLabels.map(n => `<span class="task-note-tag${n.isCustom ? ' tag-custom' : ''}">${n.text}</span>`).join('')}</div>`
       : '';
+    const categoryTag = getCategoryBadgeHTML(task);
+    const proofs = rec && rec.proofs ? rec.proofs : [];
+    let proofChipsHtml = '';
+    if (completed) {
+      proofChipsHtml = '<div class="proof-chips">';
+      proofs.forEach((p, i) => {
+        const label = p.type === 'image' ? '&#128247; 图片' : '&#127908; 语音';
+        proofChipsHtml += `<span class="proof-chip" onclick="setPendingProof('${dateStr}','${task.id}'); openProofViewer(${i}); event.stopPropagation();">${label}</span>`;
+      });
+      proofChipsHtml += `<span class="proof-chip add" onclick="setPendingProof('${dateStr}','${task.id}'); openProofModal('${dateStr}','${task.id}'); event.stopPropagation();">+ 凭证</span>`;
+      proofChipsHtml += '</div>';
+    }
     const item = document.createElement('div');
     item.className = 'task-item';
     item.onclick = () => toggleTask(dateStr, task.id);
@@ -2524,9 +2860,10 @@ function showDayDetail(dateStr) {
         ${completed ? '&#10003;' : ''}
       </div>
       <div class="task-info">
-        <div class="task-name">${task.name}</div>
+        <div class="task-name">${categoryTag}${task.name}</div>
         <div class="task-meta">${editorInfo}</div>
         ${noteTagsHtml}
+        ${proofChipsHtml}
       </div>
       <div class="task-points">+${task.points}</div>
     `;
@@ -2605,6 +2942,7 @@ function toggleTask(dateStr, taskId) {
     rec.completed = false;
     rec.lastEditor = role.name;
     rec.lastEditedAt = now();
+    logOperation('toggle_task', `${dateStr} 取消完成「${task ? task.name : taskId}」`);
     saveData();
     showDayDetail(dateStr);
     showToast('已更新');
@@ -2629,9 +2967,9 @@ function toggleTask(dateStr, taskId) {
       lastEditedAt: now()
     };
   }
+  logOperation('toggle_task', `${dateStr} 完成任务「${task ? task.name : taskId}」`);
   saveData();
-  showDayDetail(dateStr);
-  showToast(getEncourageMsg());
+  openProofModal(dateStr, taskId);
 }
 
 // --- Note select sheet ---
@@ -2705,6 +3043,7 @@ function confirmNoteSelect() {
   const taskId = pendingNoteTaskId;
 
   if (!state.records[dateStr]) state.records[dateStr] = {};
+  const task = state.tasks.find(t => t.id === taskId);
   state.records[dateStr][taskId] = {
     completed: true,
     lastEditor: role.name,
@@ -2712,15 +3051,211 @@ function confirmNoteSelect() {
     noteItems: noteItems,
     customNote: customNote
   };
+  logOperation('toggle_task', `${dateStr} 完成任务「${task ? task.name : taskId}」备注:${noteItems.join('/')}`);
 
   closeModal('modal-note-select');
   saveData();
-  showDayDetail(dateStr);
-  showToast(getEncourageMsg());
+  openProofModal(dateStr, taskId);
 }
 
 function cancelNoteSelect() {
   closeModal('modal-note-select');
+}
+
+// --- Proof / voice / photo ---
+let pendingProofDateStr = null;
+let pendingProofTaskId = null;
+let proofMediaRecorder = null;
+let proofAudioChunks = [];
+let proofRecordingTimer = null;
+const MAX_VOICE_SECONDS = 30;
+
+function setPendingProof(dateStr, taskId) {
+  pendingProofDateStr = dateStr;
+  pendingProofTaskId = taskId;
+}
+
+function getTaskNameById(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  return task ? task.name : taskId;
+}
+
+function openProofModal(dateStr, taskId) {
+  pendingProofDateStr = dateStr;
+  pendingProofTaskId = taskId;
+  const task = state.tasks.find(t => t.id === taskId);
+  document.getElementById('proof-task-label').textContent = (task ? task.name : taskId) + ' · ' + dateStr;
+  renderProofList();
+  document.getElementById('proof-record-hint').style.display = 'none';
+  updateRecordBtn(false);
+  openModal('modal-proof');
+}
+
+function getPendingProofRec() {
+  const dateStr = pendingProofDateStr;
+  const taskId = pendingProofTaskId;
+  if (!dateStr || !taskId) return null;
+  if (!state.records[dateStr]) return null;
+  return state.records[dateStr][taskId];
+}
+
+function renderProofList() {
+  const rec = getPendingProofRec();
+  const list = document.getElementById('proof-list');
+  const proofs = rec && rec.proofs ? rec.proofs : [];
+  if (proofs.length === 0) {
+    list.innerHTML = '<div class="text-sm text-light">暂无凭证，可点击下方按钮添加</div>';
+    return;
+  }
+  list.innerHTML = proofs.map((p, i) => {
+    if (p.type === 'image') {
+      return `<div class="proof-item" onclick="openProofViewer(${i})"><img src="${p.dataUrl}" alt="凭证"><button class="proof-delete" onclick="deleteProof(${i}, event)">&times;</button></div>`;
+    }
+    return `<div class="proof-item proof-audio-item" onclick="openProofViewer(${i})"><span class="proof-audio-icon">&#127908;</span><span class="proof-audio-duration">${p.duration || 0}秒</span><button class="proof-delete" onclick="deleteProof(${i}, event)">&times;</button></div>`;
+  }).join('');
+}
+
+function triggerImageProof() { document.getElementById('proof-image-input').click(); }
+
+function compressImage(file, maxWidth, quality, callback) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const scale = Math.min(1, maxWidth / img.width);
+      canvas.width = Math.floor(img.width * scale);
+      canvas.height = Math.floor(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function onImageProofSelected(input) {
+  const file = input.files[0];
+  input.value = '';
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('请选择图片文件'); return; }
+  compressImage(file, 960, 0.7, function(dataUrl) {
+    const rec = getPendingProofRec();
+    if (!rec) return;
+    if (!rec.proofs) rec.proofs = [];
+    rec.proofs.push({ type: 'image', dataUrl: dataUrl, createdAt: now(), createdBy: getRoleById(state.currentRole).name });
+    logOperation('add_proof', `${pendingProofDateStr} 为「${getTaskNameById(pendingProofTaskId)}」添加图片凭证`);
+    saveData();
+    renderProofList();
+  });
+}
+
+function updateRecordBtn(recording) {
+  const btn = document.getElementById('proof-record-btn');
+  if (recording) {
+    btn.innerHTML = '&#9632; 停止录音';
+    btn.classList.add('recording');
+  } else {
+    btn.innerHTML = '&#127908; 录音';
+    btn.classList.remove('recording');
+  }
+}
+
+function toggleVoiceProof() {
+  if (proofMediaRecorder && proofMediaRecorder.state === 'recording') {
+    stopVoiceProof();
+  } else {
+    startVoiceProof();
+  }
+}
+
+async function startVoiceProof() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('当前环境不支持录音');
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+    proofAudioChunks = [];
+    proofMediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType: mimeType } : {});
+    const startTime = Date.now();
+    proofMediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) proofAudioChunks.push(e.data); };
+    proofMediaRecorder.onstop = function() {
+      const duration = Math.round((Date.now() - startTime) / 1000);
+      const blob = new Blob(proofAudioChunks, { type: mimeType || 'audio/webm' });
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const rec = getPendingProofRec();
+        if (rec) {
+          if (!rec.proofs) rec.proofs = [];
+          rec.proofs.push({ type: 'voice', dataUrl: e.target.result, duration: duration, createdAt: now(), createdBy: getRoleById(state.currentRole).name });
+          logOperation('add_proof', `${pendingProofDateStr} 为「${getTaskNameById(pendingProofTaskId)}」添加语音凭证`);
+          saveData();
+          renderProofList();
+        }
+        stream.getTracks().forEach(t => t.stop());
+      };
+      reader.readAsDataURL(blob);
+    };
+    proofMediaRecorder.start();
+    updateRecordBtn(true);
+    document.getElementById('proof-record-hint').style.display = 'block';
+    proofRecordingTimer = setTimeout(function() { if (proofMediaRecorder && proofMediaRecorder.state === 'recording') stopVoiceProof(); }, MAX_VOICE_SECONDS * 1000);
+  } catch (err) {
+    console.error(err);
+    showToast('无法访问麦克风');
+  }
+}
+
+function stopVoiceProof() {
+  if (proofRecordingTimer) { clearTimeout(proofRecordingTimer); proofRecordingTimer = null; }
+  if (proofMediaRecorder && proofMediaRecorder.state !== 'inactive') {
+    proofMediaRecorder.stop();
+  }
+  updateRecordBtn(false);
+  document.getElementById('proof-record-hint').style.display = 'none';
+}
+
+function deleteProof(index, event) {
+  if (event) event.stopPropagation();
+  const rec = getPendingProofRec();
+  if (!rec || !rec.proofs) return;
+  rec.proofs.splice(index, 1);
+  logOperation('delete_proof', `${pendingProofDateStr} 删除「${getTaskNameById(pendingProofTaskId)}」凭证`);
+  saveData();
+  renderProofList();
+}
+
+function saveProofModal() {
+  if (proofMediaRecorder && proofMediaRecorder.state === 'recording') stopVoiceProof();
+  const dateStr = pendingProofDateStr;
+  closeModal('modal-proof');
+  pendingProofDateStr = null;
+  pendingProofTaskId = null;
+  if (dateStr) {
+    showDayDetail(dateStr);
+    showToast(getEncourageMsg());
+  }
+}
+
+function skipProofModal() { saveProofModal(); }
+
+function openProofViewer(index) {
+  const rec = getPendingProofRec();
+  if (!rec || !rec.proofs || !rec.proofs[index]) return;
+  const p = rec.proofs[index];
+  const title = document.getElementById('proof-viewer-title');
+  const body = document.getElementById('proof-viewer-body');
+  if (p.type === 'image') {
+    title.textContent = '图片凭证';
+    body.innerHTML = `<img class="proof-viewer-img" src="${p.dataUrl}" alt="凭证图片">`;
+  } else {
+    title.textContent = '语音凭证';
+    body.innerHTML = `<audio class="proof-viewer-audio" src="${p.dataUrl}" controls autoplay></audio><div class="text-sm text-light mt-1">时长 ${p.duration || 0} 秒</div>`;
+  }
+  openModal('modal-proof-viewer');
 }
 
 // ===================== TASK MANAGEMENT =====================
@@ -2761,6 +3296,36 @@ function renderNotesItems(prefix) {
   listEl.innerHTML = arr.map((item, i) =>
     `<div class="notes-item-chip"><span>${item}</span><button class="notes-item-remove" onclick="removeNotesItem('${prefix}', ${i})">&times;</button></div>`
   ).join('');
+}
+
+// --- Category management ---
+function renderCategoryOptions(prefix, selectedId) {
+  const containerId = prefix === '' ? 'task-category-options' : 'edit-task-category-options';
+  const hiddenId = prefix === '' ? 'input-task-category' : 'edit-task-category';
+  const container = document.getElementById(containerId);
+  const hidden = document.getElementById(hiddenId);
+  if (!container) return;
+  container.innerHTML = TASK_CATEGORIES.map(cat => `
+    <div class="category-option ${cat.id === selectedId ? 'active' : ''}" data-id="${cat.id}" onclick="selectCategoryOption('${prefix}', '${cat.id}')">
+      <span class="icon">${cat.icon}</span>
+      <span>${cat.name}</span>
+    </div>
+  `).join('');
+  if (hidden) hidden.value = selectedId;
+}
+
+function selectCategoryOption(prefix, catId) {
+  const containerId = prefix === '' ? 'task-category-options' : 'edit-task-category-options';
+  const hiddenId = prefix === '' ? 'input-task-category' : 'edit-task-category';
+  document.querySelectorAll(`#${containerId} .category-option`).forEach(el => {
+    el.classList.toggle('active', el.dataset.id === catId);
+  });
+  document.getElementById(hiddenId).value = catId;
+}
+
+function getCategoryFromModal(prefix) {
+  const hiddenId = prefix === '' ? 'input-task-category' : 'edit-task-category';
+  return document.getElementById(hiddenId).value || 'other';
 }
 
 function setValidityType(type) {
@@ -2825,10 +3390,12 @@ function renderTaskManage() {
     item.className = 'list-item flex-between';
     item.style.cursor = 'pointer';
     const vLabel = getValidityLabel(task);
+    const categoryTag = getCategoryBadgeHTML(task);
     item.innerHTML = `
       <div style="flex:1; min-width:0;">
         <div class="font-bold" style="display:flex; align-items:center; flex-wrap:wrap;">
           ${task.name}
+          ${categoryTag}
           <span class="task-validity-tag">${vLabel}</span>
           ${task.notes && task.notes.enabled ? '<span class="task-notes-indicator">备注</span>' : ''}
         </div>
@@ -2862,8 +3429,11 @@ function addTask() {
   const notesToggle = document.getElementById('notes-toggle');
   const notesEnabled = notesToggle.classList.contains('active');
   const notes = { enabled: notesEnabled, items: notesEnabled ? [...currentNotesItems] : [] };
+  const category = getCategoryFromModal('');
 
-  state.tasks.push({ id: genId(), name, points, createdAt: now(), validity, notes });
+  const ts = now();
+  state.tasks.push({ id: genId(), name, points, createdAt: ts, updatedAt: ts, category, validity, notes });
+  logOperation('add_task', `新增任务「${name}」(${points}积分)`);
   saveData();
   closeModal('modal-add-task');
   document.getElementById('input-task-name').value = '';
@@ -2872,6 +3442,7 @@ function addTask() {
   renderNotesItems('');
   notesToggle.classList.remove('active');
   document.getElementById('notes-config').style.display = 'none';
+  renderCategoryOptions('', 'study');
   renderTaskManage();
   showToast('任务已添加');
 }
@@ -2910,6 +3481,7 @@ function openEditTask(task) {
   editNotesToggle.classList.toggle('active', n.enabled);
   document.getElementById('edit-notes-config').style.display = n.enabled ? 'block' : 'none';
   renderNotesItems('edit-');
+  renderCategoryOptions('edit-', task.category || 'other');
 
   openModal('modal-edit-task');
 }
@@ -2935,13 +3507,17 @@ function saveEditTask() {
 
   const editNotesToggle = document.getElementById('edit-notes-toggle');
   const notesEnabled = editNotesToggle.classList.contains('active');
+  const category = getCategoryFromModal('edit-');
 
   const task = state.tasks.find(t => t.id === id);
   if (task) {
     task.name = name;
     task.points = points;
     task.validity = validity;
+    task.category = category;
     task.notes = { enabled: notesEnabled, items: notesEnabled ? [...currentEditNotesItems] : [] };
+    task.updatedAt = now();
+    logOperation('edit_task', `编辑任务「${task.name}」`);
     saveData();
     closeModal('modal-edit-task');
     renderTaskManage();
@@ -2952,11 +3528,13 @@ function saveEditTask() {
 function deleteEditTask() {
   if (!confirm('确定删除此任务吗？相关完成记录也将失效。')) return;
   const id = document.getElementById('edit-task-id').value;
+  const deletedTask = state.tasks.find(t => t.id === id);
   state.tasks = state.tasks.filter(t => t.id !== id);
   // Clean records
   for (const date in state.records) {
     if (state.records[date][id]) delete state.records[date][id];
   }
+  logOperation('delete_task', deletedTask ? `删除任务「${deletedTask.name}」` : '删除任务');
   saveData();
   closeModal('modal-edit-task');
   renderTaskManage();
@@ -3036,6 +3614,7 @@ function addRedemption() {
     createdAt: ts,
     updatedAt: ts
   });
+  logOperation('add_redemption', `兑换「${name}」消耗${points}积分`);
 
   saveData();
   closeModal('modal-add-redemption');
@@ -3091,6 +3670,7 @@ function saveEditRedemption() {
   item.points = points;
   item.date = date;
   item.updatedAt = now();
+  logOperation('edit_redemption', `编辑兑换「${item.name}」`);
 
   saveData();
   closeModal('modal-edit-redemption');
@@ -3111,7 +3691,9 @@ function deleteEditRedemption() {
 
   if (!confirm(`确定要删除「${item.name}」的兑换记录吗？对应的 ${item.points} 积分将返还。`)) return;
 
+  const deletedRedemption = state.redemptions.find(r => r.id === id);
   state.redemptions = state.redemptions.filter(r => r.id !== id);
+  logOperation('delete_redemption', deletedRedemption ? `删除兑换「${deletedRedemption.name}」` : '删除兑换记录');
   saveData();
   closeModal('modal-edit-redemption');
   renderRedemptions();
@@ -3298,6 +3880,32 @@ function renderStatistics() {
   document.getElementById('stats-summary-total').textContent = totalPoints;
   document.getElementById('stats-summary-completed').textContent = totalCompleted;
 
+  // Category statistics
+  const categoryStats = {};
+  TASK_CATEGORIES.forEach(c => categoryStats[c.id] = { ...c, points: 0, count: 0 });
+  taskStats.forEach(ts => {
+    const task = state.tasks.find(t => t.id === ts.taskId);
+    if (task && ts.pointsEarned > 0) {
+      const catId = task.category || 'other';
+      if (categoryStats[catId]) {
+        categoryStats[catId].points += ts.pointsEarned;
+        categoryStats[catId].count += ts.completedCount;
+      }
+    }
+  });
+  const catGrid = document.getElementById('category-stats-grid');
+  if (catGrid) {
+    catGrid.innerHTML = TASK_CATEGORIES.map(c => {
+      const s = categoryStats[c.id];
+      return `<div class="category-stat-item">
+        <div class="category-stat-icon">${c.icon}</div>
+        <div class="category-stat-name">${c.name}</div>
+        <div class="category-stat-points">${s.points}分</div>
+        <div class="text-xs text-light">${s.count}次</div>
+      </div>`;
+    }).join('');
+  }
+
   // AI Summary
   generateAiSummary(taskStats, totalPoints, totalCompleted, range);
 }
@@ -3434,8 +4042,9 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.25.5';
+const APP_VERSION = 'v1.26';
 const CHANGELOG = [
+  { ver: 'v1.26', desc: '新增任务分类与统计、任务完成图片/语音凭证，优化数据同步可靠性与操作日志', time: '2026-08-18 10:00:00' },
   { ver: 'v1.25.5', desc: '扩充首页各角色欢迎语文案库', time: '2026-08-11 11:15:00' },
   { ver: 'v1.25.4', desc: '积分兑换页备注文案更新为新的兑换比例说明', time: '2026-08-11 11:00:00' },
   { ver: 'v1.25.3', desc: '每日签到权限限定为仅妈妈（管理员）和 YOYO 可签到/补签', time: '2026-08-11 10:45:00' },
@@ -3514,6 +4123,20 @@ function renderProfile() {
   const resetCard = document.getElementById('profile-reset-card');
   if (resetCard) resetCard.style.display = isAdmin() ? 'block' : 'none';
 
+  // Backup reminder
+  const banner = document.getElementById('backup-banner');
+  const bannerDesc = document.getElementById('backup-banner-desc');
+  if (banner && bannerDesc) {
+    const lastBackupRaw = localStorage.getItem('yoyo_tracker_last_backup');
+    const daysSince = lastBackupRaw ? Math.floor((Date.now() - new Date(lastBackupRaw).getTime()) / 86400000) : 999;
+    if (daysSince >= 30) {
+      banner.style.display = 'flex';
+      bannerDesc.textContent = lastBackupRaw ? `距离上次备份已超过 ${daysSince} 天` : '尚未备份过数据，建议立即备份';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
   // Render member stats
   const statsBody = document.getElementById('member-stats-body');
   if (!statsBody) return;
@@ -3544,6 +4167,8 @@ function resetData() {
   state.records = {};
   state.redemptions = [];
   state.checkins = {};
+  state.operationLog = [];
+  logOperation('reset_data', '重置所有数据');
   saveData();
   showToast('数据已重置');
   showPage('page-home');
@@ -3557,7 +4182,8 @@ function getExportJSON() {
     tasks: state.tasks,
     records: state.records,
     redemptions: state.redemptions,
-    checkins: state.checkins
+    checkins: state.checkins,
+    operationLog: state.operationLog
   }, null, 2);
 }
 
@@ -3577,6 +4203,8 @@ function exportData() {
   } catch (e) {}
   // Always show the modal with copyable text (essential for WeChat/DingTalk)
   document.getElementById('export-textarea').value = jsonText;
+  logOperation('export_data', '导出数据备份');
+  try { localStorage.setItem('yoyo_tracker_last_backup', now()); } catch (e) {}
   openModal('modal-export-data');
 }
 
@@ -3619,6 +4247,8 @@ function parseAndImport(jsonText) {
       }
       if (!t.validity) t.validity = { type: 'permanent' };
       if (!t.notes) t.notes = { enabled: false, items: [] };
+      if (!t.updatedAt) t.updatedAt = t.createdAt || now();
+      if (!t.category) t.category = 'other';
     });
 
     if (!confirm(`确定要导入数据吗？当前 ${state.tasks.length} 个任务、${Object.keys(state.records).length} 天记录将被覆盖。`)) {
@@ -3629,6 +4259,8 @@ function parseAndImport(jsonText) {
     state.records = data.records;
     state.redemptions = data.redemptions;
     state.checkins = data.checkins || {};
+    state.operationLog = data.operationLog || [];
+    logOperation('import_data', `导入数据：${state.tasks.length}个任务`);
     saveData();
     showToast('数据导入成功');
     closeModal('modal-import-data');
