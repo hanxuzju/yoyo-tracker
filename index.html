@@ -1554,7 +1554,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27</span>
+      <span class="text-light" id="app-version">v1.27.1</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4217,8 +4217,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27';
+const APP_VERSION = 'v1.27.1';
 const CHANGELOG = [
+  { ver: 'v1.27.1', desc: 'AI 分析设置仅对管理员（妈妈）可见', time: '2026-08-18 15:00:00' },
   { ver: 'v1.27', desc: '首页新增今日待办、支持深色模式切换、统计页可接入 LLM API 进行真正的 AI 分析', time: '2026-08-18 14:00:00' },
   { ver: 'v1.26', desc: '新增任务分类与统计、任务完成图片/语音凭证，优化数据同步可靠性与操作日志', time: '2026-08-18 10:00:00' },
   { ver: 'v1.25.5', desc: '扩充首页各角色欢迎语文案库', time: '2026-08-11 11:15:00' },
