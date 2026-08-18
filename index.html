@@ -23,6 +23,20 @@
       --radius: 14px;
       --radius-sm: 8px;
     }
+    [data-theme="dark"] {
+      --primary: #6B9BFF;
+      --primary-dark: #5A8AEE;
+      --secondary: #FFD93D;
+      --success: #5BD46E;
+      --danger: #FF7B7B;
+      --warning: #FFB020;
+      --bg: #121418;
+      --card: #1E2228;
+      --text: #E8EAED;
+      --text-light: #9AA0A6;
+      --border: #2E333B;
+      --shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { font-size: 16px; }
@@ -778,6 +792,50 @@
     .category-stat-name { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
     .category-stat-points { font-size: 0.9375rem; font-weight: 600; color: var(--primary); margin-top: 2px; }
 
+    /* Today tasks on home */
+    .today-tasks-card { margin: 0 16px 16px; }
+    .today-task-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .today-task-item:last-child { border-bottom: none; }
+    .today-task-item .checkbox {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      margin-right: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: transparent;
+      transition: all 0.15s;
+    }
+    .today-task-item.completed .checkbox {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    .today-task-item.completed .task-name { text-decoration: line-through; opacity: 0.6; }
+    .today-task-info { flex: 1; min-width: 0; }
+    .today-task-info .task-name { font-size: 0.875rem; font-weight: 500; }
+    .today-task-info .task-meta { font-size: 0.6875rem; color: var(--text-light); margin-top: 2px; }
+    .today-task-points {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+    .today-empty {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--text-light);
+      font-size: 0.875rem;
+    }
+
     /* Stats note drilldown */
     .stats-task-name-clickable { cursor: pointer; }
     .stats-note-icon {
@@ -1134,6 +1192,17 @@
       padding: 16px;
       margin: 0 16px 16px;
     }
+    [data-theme="dark"] .ai-summary {
+      background: linear-gradient(135deg, #1A2536 0%, #202B3D 100%);
+      border-left-color: var(--primary);
+    }
+    [data-theme="dark"] .backup-banner {
+      background: linear-gradient(135deg, #2D2818 0%, #332B14 100%);
+      border-color: #5C4D1F;
+    }
+    [data-theme="dark"] .backup-banner-title { color: #E8D48B; }
+    [data-theme="dark"] .backup-banner-desc { color: #B8A55A; }
+    [data-theme="dark"] .toast { background: rgba(255,255,255,0.85); color: #121418; }
     .ai-summary-header {
       display: flex;
       align-items: center;
@@ -1303,6 +1372,14 @@
       <div class="value" id="stat-balance" style="color: var(--primary);">0</div>
       <div class="label">当前余额</div>
     </div>
+  </div>
+
+  <div class="card today-tasks-card">
+    <div class="card-header">
+      <span class="card-title">今日待办</span>
+      <span class="text-sm text-light" id="today-tasks-count">0 个未完成</span>
+    </div>
+    <div class="card-body" id="today-tasks-list"></div>
   </div>
 
   <div class="card">
@@ -1477,7 +1554,11 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.26</span>
+      <span class="text-light" id="app-version">v1.27</span>
+    </div>
+    <div class="list-item flex-between" onclick="toggleTheme()">
+      <span>深色模式</span>
+      <span class="text-light" id="theme-mode-text">跟随系统</span>
     </div>
   </div>
   <div class="profile-actions">
@@ -1485,7 +1566,28 @@
     <button class="btn btn-outline btn-block" onclick="triggerImport()">&#128194; 导入数据</button>
     <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importData(this)">
   </div>
-  <div class="card" style="margin-top:0;" id="profile-reset-card">
+  <div class="card" style="margin-top:16px;">
+    <div class="card-header">
+      <span class="card-title">AI 分析设置</span>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label class="form-label">API 端点（OpenAI 兼容）</label>
+        <input class="form-input" id="ai-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
+      </div>
+      <div class="form-group">
+        <label class="form-label">模型</label>
+        <input class="form-input" id="ai-model" placeholder="gpt-4o-mini">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">API Key</label>
+        <input class="form-input" id="ai-key" type="password" placeholder="sk-...">
+      </div>
+      <button class="btn btn-primary btn-block mt-1" onclick="saveAiConfig()">保存设置</button>
+      <div class="text-xs text-light mt-1">仅存储在本地浏览器，不会上传到服务端。未配置时仍使用本地规则分析。</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;" id="profile-reset-card">
     <div class="list-item flex-between danger-zone" onclick="resetData()">
       <span>重置所有数据</span>
       <span>&#8250;</span>
@@ -2569,6 +2671,7 @@ function switchRole() {
 function renderHome() {
   renderStats();
   renderCalendar();
+  renderTodayTasks();
   updateCheckinButton();
   startWelcomeTypewriter();
 }
@@ -2659,6 +2762,56 @@ function renderCalendar() {
     el.textContent = day;
     grid.appendChild(el);
   }
+}
+
+function renderTodayTasks() {
+  const container = document.getElementById('today-tasks-list');
+  const countEl = document.getElementById('today-tasks-count');
+  if (!container || !countEl) return;
+  const today = todayStr();
+  const dayRec = state.records[today] || {};
+  const tasks = state.tasks.filter(t => isTaskValidOnDate(t, today));
+
+  if (tasks.length === 0) {
+    container.innerHTML = '<div class="today-empty">今日暂无任务</div>';
+    countEl.textContent = '';
+    return;
+  }
+
+  const completedTasks = [];
+  const pendingTasks = [];
+  tasks.forEach(task => {
+    const rec = dayRec[task.id];
+    const completed = rec ? rec.completed : false;
+    (completed ? completedTasks : pendingTasks).push({ task, rec });
+  });
+
+  countEl.textContent = pendingTasks.length > 0 ? `${pendingTasks.length} 个未完成` : '全部完成';
+
+  if (pendingTasks.length === 0 && completedTasks.length === 0) {
+    container.innerHTML = '<div class="today-empty">今日暂无任务</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  const renderItem = (task, completed) => {
+    const item = document.createElement('div');
+    item.className = 'today-task-item' + (completed ? ' completed' : '');
+    const cat = getTaskCategory(task.category);
+    item.innerHTML = `
+      <div class="checkbox">${completed ? '&#10003;' : ''}</div>
+      <div class="today-task-info">
+        <div class="task-name">${task.name}</div>
+        <div class="task-meta">${cat.name} · ${completed ? '已完成' : '待完成'}</div>
+      </div>
+      <div class="today-task-points">+${task.points}</div>
+    `;
+    item.onclick = () => showDayDetail(today);
+    container.appendChild(item);
+  };
+
+  pendingTasks.forEach(({ task }) => renderItem(task, false));
+  completedTasks.forEach(({ task }) => renderItem(task, true));
 }
 
 // ===================== SCORING =====================
@@ -3981,13 +4134,7 @@ function toggleAiSummary() {
   }
 }
 
-function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
-  const container = document.getElementById('ai-summary-body');
-  if (taskStats.length === 0) {
-    container.innerHTML = '<p>暂无数据，快去添加任务并开始记录吧！</p>';
-    return;
-  }
-
+function buildLocalAiSummary(taskStats, totalPoints, totalCompleted, range) {
   const bestTask = taskStats[0];
   const rangeLabel = state.statsRange === 'week' ? '本周' : state.statsRange === 'month' ? '本月' : '累计';
   const lines = [];
@@ -4038,12 +4185,41 @@ function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
 
   lines.push('每天坚持一点点，积少成多就能看到变化！');
 
-  container.innerHTML = lines.map(s => `<p>${s}</p>`).join('');
+  return lines.map(s => `<p>${s}</p>`).join('');
+}
+
+async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) {
+  const container = document.getElementById('ai-summary-body');
+  if (taskStats.length === 0) {
+    container.innerHTML = '<p>暂无数据，快去添加任务并开始记录吧！</p>';
+    return;
+  }
+
+  const localHTML = buildLocalAiSummary(taskStats, totalPoints, totalCompleted, range);
+  const cfg = getAiConfig();
+  if (!cfg.endpoint || !cfg.key) {
+    container.innerHTML = localHTML + '<p style="font-size:0.75rem;color:var(--text-light);margin-top:8px;">提示：在「我的」页面配置 LLM API Key 后可获得更自然的 AI 建议。</p>';
+    return;
+  }
+
+  container.innerHTML = '<p>正在请求 AI 分析…</p>';
+  try {
+    const prompt = buildAiDataSummary(taskStats, totalPoints, totalCompleted, range);
+    const content = await callLLM(cfg, prompt);
+    if (content) {
+      container.innerHTML = content.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('');
+      return;
+    }
+  } catch (e) {
+    console.error('LLM failed', e);
+  }
+  container.innerHTML = localHTML + '<p style="font-size:0.75rem;color:var(--text-light);margin-top:8px;">AI 分析暂时不可用，已切换为本地规则总结。</p>';
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.26';
+const APP_VERSION = 'v1.27';
 const CHANGELOG = [
+  { ver: 'v1.27', desc: '首页新增今日待办、支持深色模式切换、统计页可接入 LLM API 进行真正的 AI 分析', time: '2026-08-18 14:00:00' },
   { ver: 'v1.26', desc: '新增任务分类与统计、任务完成图片/语音凭证，优化数据同步可靠性与操作日志', time: '2026-08-18 10:00:00' },
   { ver: 'v1.25.5', desc: '扩充首页各角色欢迎语文案库', time: '2026-08-11 11:15:00' },
   { ver: 'v1.25.4', desc: '积分兑换页备注文案更新为新的兑换比例说明', time: '2026-08-11 11:00:00' },
@@ -4158,6 +4334,144 @@ function renderProfile() {
       </div>`;
   });
   statsBody.innerHTML = html;
+  updateThemeText();
+  loadAiConfigIntoInputs();
+}
+
+// ===================== THEME =====================
+const THEME_KEY = 'yoyo_tracker_theme';
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'auto';
+  applyTheme(saved);
+}
+
+function applyTheme(mode) {
+  const root = document.documentElement;
+  if (mode === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+  } else if (mode === 'light') {
+    root.removeAttribute('data-theme');
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) root.setAttribute('data-theme', 'dark');
+    else root.removeAttribute('data-theme');
+  }
+  updateThemeText();
+}
+
+function getThemeMode() {
+  return localStorage.getItem(THEME_KEY) || 'auto';
+}
+
+function toggleTheme() {
+  const mode = getThemeMode();
+  let next = 'dark';
+  if (mode === 'dark') next = 'light';
+  else if (mode === 'light') next = 'auto';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+}
+
+function updateThemeText() {
+  const el = document.getElementById('theme-mode-text');
+  if (!el) return;
+  const mode = getThemeMode();
+  const map = { auto: '跟随系统', light: '浅色模式', dark: '深色模式' };
+  el.textContent = map[mode] || mode;
+}
+
+// ===================== AI / LLM =====================
+const AI_CONFIG_KEY = 'yoyo_tracker_ai_config';
+
+function getAiConfig() {
+  try {
+    const raw = localStorage.getItem(AI_CONFIG_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { endpoint: '', model: '', key: '' };
+}
+
+function saveAiConfig() {
+  const endpoint = document.getElementById('ai-endpoint').value.trim();
+  const model = document.getElementById('ai-model').value.trim();
+  const key = document.getElementById('ai-key').value.trim();
+  localStorage.setItem(AI_CONFIG_KEY, JSON.stringify({ endpoint, model, key }));
+  showToast('AI 设置已保存');
+}
+
+function loadAiConfigIntoInputs() {
+  const cfg = getAiConfig();
+  const endpointEl = document.getElementById('ai-endpoint');
+  const modelEl = document.getElementById('ai-model');
+  const keyEl = document.getElementById('ai-key');
+  if (endpointEl) endpointEl.value = cfg.endpoint || '';
+  if (modelEl) modelEl.value = cfg.model || '';
+  if (keyEl) keyEl.value = cfg.key || '';
+}
+
+function buildAiDataSummary(taskStats, totalPoints, totalCompleted, range) {
+  const rangeLabel = state.statsRange === 'week' ? '本周' : state.statsRange === 'month' ? '本月' : '累计';
+  let summary = `时间范围：${rangeLabel}，共完成 ${totalCompleted} 次任务，获得 ${totalPoints} 积分。\n`;
+  if (taskStats.length > 0) {
+    summary += '任务表现：\n';
+    taskStats.slice(0, 10).forEach(ts => {
+      summary += `- ${ts.name}：完成 ${ts.completedCount} 次，获得 ${ts.pointsEarned} 分\n`;
+    });
+  }
+  const catStats = {};
+  TASK_CATEGORIES.forEach(c => catStats[c.id] = { name: c.name, points: 0, count: 0 });
+  taskStats.forEach(ts => {
+    const task = state.tasks.find(t => t.id === ts.taskId);
+    if (task) {
+      const catId = task.category || 'other';
+      if (catStats[catId]) {
+        catStats[catId].points += ts.pointsEarned;
+        catStats[catId].count += ts.completedCount;
+      }
+    }
+  });
+  summary += '分类表现：\n';
+  Object.values(catStats).forEach(c => {
+    if (c.count > 0) summary += `- ${c.name}：${c.count} 次，${c.points} 分\n`;
+  });
+  const today = new Date();
+  let recent7 = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    recent7 += getDayScore(fmtDate(d));
+  }
+  summary += `最近 7 天共获得 ${recent7} 分。`;
+  return summary;
+}
+
+async function callLLM(cfg, prompt) {
+  const resp = await fetch(cfg.endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + cfg.key
+    },
+    body: JSON.stringify({
+      model: cfg.model || 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: '你是一位亲切的家庭教育助手，专门帮助家长和孩子一起复盘学习任务。请用温暖、鼓励、具体的语气，基于数据给出 3-5 条简短建议。每条建议控制在 50 字以内，使用中文。' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 800
+    })
+  });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  const data = await resp.json();
+  if (data.choices && data.choices[0] && data.choices[0].message) {
+    return data.choices[0].message.content;
+  }
+  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+    return data.candidates[0].content.parts.map(p => p.text).join('');
+  }
+  return '';
 }
 
 function resetData() {
@@ -4310,6 +4624,13 @@ function checkUrlRole() {
 
 // ===================== INIT =====================
 async function init() {
+  initTheme();
+  try {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const updateAuto = () => { if (getThemeMode() === 'auto') applyTheme('auto'); };
+    if (media.addEventListener) media.addEventListener('change', updateAuto);
+  } catch (e) {}
+
   renderRoleSelect();
 
   const hasLocal = loadLocalCache();
