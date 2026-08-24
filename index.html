@@ -373,8 +373,31 @@
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--primary);
-      margin-left: 10px;
+      margin-left: 8px;
       flex-shrink: 0;
+    }
+    .task-proof-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-light);
+      flex-shrink: 0;
+      margin-left: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .task-proof-btn.uploaded {
+      background: #E8F0FE;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    [data-theme="dark"] .task-proof-btn.uploaded {
+      background: rgba(107, 155, 255, 0.18);
     }
     .task-validity-tag {
       font-size: 0.625rem;
@@ -650,26 +673,6 @@
       font-weight: 500;
     }
     .note-custom-input-wrap { margin-bottom: 16px; }
-
-    /* Proof chips in day detail */
-    .proof-chips {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      margin-top: 6px;
-    }
-    .proof-chip {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-size: 0.6875rem;
-      padding: 2px 7px;
-      border-radius: 10px;
-      background: #E8F0FE;
-      color: var(--primary);
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .proof-chip.add {
-      background: var(--primary);
-      color: #fff;
-    }
 
     /* Proof modal */
     .proof-sheet-list {
@@ -1554,7 +1557,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.1</span>
+      <span class="text-light" id="app-version">v1.27.2</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -2995,16 +2998,11 @@ function showDayDetail(dateStr) {
       : '';
     const categoryTag = getCategoryBadgeHTML(task);
     const proofs = rec && rec.proofs ? rec.proofs : [];
-    let proofChipsHtml = '';
-    if (completed) {
-      proofChipsHtml = '<div class="proof-chips">';
-      proofs.forEach((p, i) => {
-        const label = p.type === 'image' ? '&#128247; 图片' : '&#127908; 语音';
-        proofChipsHtml += `<span class="proof-chip" onclick="setPendingProof('${dateStr}','${task.id}'); openProofViewer(${i}); event.stopPropagation();">${label}</span>`;
-      });
-      proofChipsHtml += `<span class="proof-chip add" onclick="setPendingProof('${dateStr}','${task.id}'); openProofModal('${dateStr}','${task.id}'); event.stopPropagation();">+ 凭证</span>`;
-      proofChipsHtml += '</div>';
-    }
+    const proofBtnClass = completed && proofs.length > 0 ? 'task-proof-btn uploaded' : 'task-proof-btn';
+    const proofBtnText = completed && proofs.length > 0 ? `已上传 ${proofs.length}` : '未上传';
+    const proofBtnOnClick = completed
+      ? `setPendingProof('${dateStr}','${task.id}'); openProofModal('${dateStr}','${task.id}'); event.stopPropagation();`
+      : `showToast('请先标记完成任务后再上传凭证'); event.stopPropagation();`;
     const item = document.createElement('div');
     item.className = 'task-item';
     item.onclick = () => toggleTask(dateStr, task.id);
@@ -3016,8 +3014,8 @@ function showDayDetail(dateStr) {
         <div class="task-name">${categoryTag}${task.name}</div>
         <div class="task-meta">${editorInfo}</div>
         ${noteTagsHtml}
-        ${proofChipsHtml}
       </div>
+      <div class="task-proof-btn ${proofBtnClass.split(' ').slice(1).join(' ')}" onclick="${proofBtnOnClick}">${proofBtnText}</div>
       <div class="task-points">+${task.points}</div>
     `;
     container.appendChild(item);
@@ -3122,7 +3120,8 @@ function toggleTask(dateStr, taskId) {
   }
   logOperation('toggle_task', `${dateStr} 完成任务「${task ? task.name : taskId}」`);
   saveData();
-  openProofModal(dateStr, taskId);
+  showDayDetail(dateStr);
+  showToast('已完成');
 }
 
 // --- Note select sheet ---
@@ -3208,7 +3207,8 @@ function confirmNoteSelect() {
 
   closeModal('modal-note-select');
   saveData();
-  openProofModal(dateStr, taskId);
+  showDayDetail(dateStr);
+  showToast('已完成');
 }
 
 function cancelNoteSelect() {
@@ -4217,8 +4217,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.1';
+const APP_VERSION = 'v1.27.2';
 const CHANGELOG = [
+  { ver: 'v1.27.2', desc: '任务完成凭证入口改为行内按钮，恢复一键标记完成', time: '2026-08-24 10:00:00' },
   { ver: 'v1.27.1', desc: 'AI 分析设置仅对管理员（妈妈）可见', time: '2026-08-18 15:00:00' },
   { ver: 'v1.27', desc: '首页新增今日待办、支持深色模式切换、统计页可接入 LLM API 进行真正的 AI 分析', time: '2026-08-18 14:00:00' },
   { ver: 'v1.26', desc: '新增任务分类与统计、任务完成图片/语音凭证，优化数据同步可靠性与操作日志', time: '2026-08-18 10:00:00' },
