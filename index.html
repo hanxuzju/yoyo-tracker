@@ -1450,7 +1450,7 @@
   <div class="app-header">
     <h1>积分兑换</h1>
     <div class="sub">1积分可兑换2元零花钱，或3分钟电视，或2分钟游戏时间</div>
-    <img class="header-mascot" src="assets/zhoushen-thumbsup.png" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-giftbox.png" alt="周深">
   </div>
   <div class="balance-bar">
     <div class="balance-bar-item">
@@ -1475,7 +1475,7 @@
   <div class="app-header">
     <h1>统计</h1>
     <div class="sub">学习数据分析与洞察</div>
-    <img class="header-mascot" src="assets/zhoushen-standing.png" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-thumbsup.png" alt="周深">
   </div>
   <div class="stats-filter">
     <button class="stats-filter-btn active" data-range="week" onclick="setStatsRange('week')">本周</button>
@@ -1549,7 +1549,7 @@
   <div class="app-header">
     <h1>我的</h1>
     <div class="sub" id="profile-role-name"></div>
-    <img class="header-mascot" src="assets/zhoushen-thumbsup.png" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-standing.png" alt="周深">
   </div>
   <div class="backup-banner" id="backup-banner" style="display:none;">
     <div class="backup-banner-text">
@@ -1569,7 +1569,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.6</span>
+      <span class="text-light" id="app-version">v1.27.7</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4229,8 +4229,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.6';
+const APP_VERSION = 'v1.27.7';
 const CHANGELOG = [
+  { ver: 'v1.27.7', desc: '调整统计、我的、兑换三页的周深人物形象：统计点赞、我的站立、兑礼物盒', time: '2026-08-26 19:00:00' },
   { ver: 'v1.27.6', desc: '增大头部上方边距，确保周深人物头部完整露出', time: '2026-08-26 18:45:00' },
   { ver: 'v1.27.5', desc: '修复周深人物绿底问题，头部改为蓝到青色渐变并增加浅灰阴影', time: '2026-08-26 18:35:00' },
   { ver: 'v1.27.4', desc: '头部改为带边距圆角渐变卡片，周深人物改为半身大图并向上延伸出头部的设计稿样式', time: '2026-08-26 18:15:00' },
