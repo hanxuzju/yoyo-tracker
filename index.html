@@ -56,14 +56,14 @@
 
     /* Header */
     .app-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      background: linear-gradient(135deg, #2563EB 0%, #3B82F6 45%, #0EA5E9 100%);
       color: #fff;
       padding: 24px 20px 32px;
       border-radius: var(--radius);
       margin: 12px 16px 0;
       position: relative;
       overflow: visible;
-      box-shadow: 0 4px 16px rgba(91,141,239,0.25);
+      box-shadow: 0 12px 32px rgba(37, 99, 235, 0.18), 0 4px 10px rgba(0,0,0,0.06);
     }
     .app-header h1 { font-size: 1.25rem; font-weight: 600; position: relative; z-index: 2; }
     .app-header .sub { font-size: 0.8125rem; opacity: 0.85; margin-top: 4px; min-height: 1.25rem; position: relative; z-index: 2; }
@@ -1569,7 +1569,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.4</span>
+      <span class="text-light" id="app-version">v1.27.5</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4229,8 +4229,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.4';
+const APP_VERSION = 'v1.27.5';
 const CHANGELOG = [
+  { ver: 'v1.27.5', desc: '修复周深人物绿底问题，头部改为蓝到青色渐变并增加浅灰阴影', time: '2026-08-26 18:35:00' },
   { ver: 'v1.27.4', desc: '头部改为带边距圆角渐变卡片，周深人物改为半身大图并向上延伸出头部的设计稿样式', time: '2026-08-26 18:15:00' },
   { ver: 'v1.27.3', desc: '首页、统计、我的、任务管理、兑换、登录等核心页面顶部新增周深形象装饰', time: '2026-08-26 17:55:00' },
   { ver: 'v1.27.2', desc: '任务完成凭证入口改为行内按钮，恢复一键标记完成', time: '2026-08-24 10:00:00' },
