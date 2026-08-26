@@ -1580,7 +1580,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.10</span>
+      <span class="text-light" id="app-version">v1.27.11</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4240,8 +4240,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.10';
+const APP_VERSION = 'v1.27.11';
 const CHANGELOG = [
+  { ver: 'v1.27.11', desc: '压缩周深人物图片，登录页加载完成后预加载所有人物素材', time: '2026-08-26 19:40:00' },
   { ver: 'v1.27.10', desc: '统一统计页选中 tab 与 AI 版块的背景和边框，消除分隔感', time: '2026-08-26 19:30:00' },
   { ver: 'v1.27.9', desc: '统计页筛选 tab 增加上间距，AI 分析版块与选中 tab 视觉连通', time: '2026-08-26 19:20:00' },
   { ver: 'v1.27.8', desc: '精简兑换页文案，调整头部高度使周深图片下边缘与蓝色模块下边缘平齐', time: '2026-08-26 19:10:00' },
@@ -4694,6 +4695,22 @@ async function init() {
 
   // Always show login page first, wait for password verification
   showPage('page-login');
+
+  // Preload header mascots for subsequent pages after login screen is ready
+  preloadHeaderMascots();
+}
+
+function preloadHeaderMascots() {
+  const mascots = [
+    'assets/zhoushen-waving.png',
+    'assets/zhoushen-standing.png',
+    'assets/zhoushen-thumbsup.png',
+    'assets/zhoushen-giftbox.png'
+  ];
+  mascots.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
 }
 
 init();
