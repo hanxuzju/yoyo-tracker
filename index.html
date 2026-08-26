@@ -45,6 +45,7 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      padding-top: env(safe-area-inset-top);
       padding-bottom: calc(70px + env(safe-area-inset-bottom));
       line-height: 1.5;
     }
@@ -58,30 +59,21 @@
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: #fff;
       padding: 24px 20px 32px;
-      border-radius: 0 0 var(--radius) var(--radius);
+      border-radius: var(--radius);
+      margin: 12px 16px 0;
       position: relative;
-      overflow: hidden;
-    }
-    .app-header::after {
-      content: '';
-      position: absolute;
-      bottom: -20px; right: -20px;
-      width: 120px; height: 120px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 50%;
+      overflow: visible;
+      box-shadow: 0 4px 16px rgba(91,141,239,0.25);
     }
     .app-header h1 { font-size: 1.25rem; font-weight: 600; position: relative; z-index: 2; }
     .app-header .sub { font-size: 0.8125rem; opacity: 0.85; margin-top: 4px; min-height: 1.25rem; position: relative; z-index: 2; }
     .header-mascot {
       position: absolute;
-      right: -8px;
-      bottom: 0;
-      height: 108px;
+      right: -6px;
+      top: -40px;
+      height: 150px;
       width: auto;
-      object-fit: cover;
-      object-position: right top;
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 22%);
-      mask-image: linear-gradient(to right, transparent 0%, black 22%);
+      object-fit: contain;
       pointer-events: none;
       z-index: 1;
     }
@@ -174,7 +166,7 @@
     .btn-checkin {
       position: absolute;
       top: 24px;
-      right: 20px;
+      right: 120px;
       padding: 6px 14px;
       background: #fff;
       color: var(--primary);
@@ -183,7 +175,7 @@
       font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
-      z-index: 1;
+      z-index: 3;
       transition: transform 0.15s, opacity 0.2s;
     }
     .btn-checkin:active {
@@ -1327,7 +1319,7 @@
   <div class="app-header">
     <h1>YOYO 学习任务记录</h1>
     <div class="sub">请输入密码进入系统</div>
-    <img class="header-mascot" src="assets/zhoushen-waving.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-waving.png" alt="周深">
   </div>
   <div class="login-container">
     <div class="login-card">
@@ -1348,7 +1340,7 @@
   <div class="app-header">
     <h1>YOYO 学习任务记录</h1>
     <div class="sub">选择您的身份进入系统</div>
-    <img class="header-mascot" src="assets/zhoushen-waving.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-waving.png" alt="周深">
   </div>
   <div class="section-title">管理员</div>
   <div class="role-grid" id="role-grid-admin"></div>
@@ -1364,7 +1356,7 @@
     <h1 id="home-greeting">欢迎</h1>
     <div class="sub" id="home-role"><span id="home-role-text"></span><span class="typewriter-cursor" id="typewriter-cursor"></span></div>
     <button id="btn-checkin" class="btn-checkin" onclick="doCheckin()" style="display:none;">签到</button>
-    <img class="header-mascot" src="assets/zhoushen-waving.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-waving.png" alt="周深">
   </div>
 
   <div class="stats-row" style="padding-bottom:8px;">
@@ -1445,7 +1437,7 @@
   <div class="app-header">
     <h1>任务管理</h1>
     <div class="sub">管理学习任务及分值</div>
-    <img class="header-mascot" src="assets/zhoushen-standing.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-standing.png" alt="周深">
   </div>
   <div class="p-2">
     <button class="btn btn-primary btn-block" onclick="openModal('modal-add-task')">+ 添加新任务</button>
@@ -1458,7 +1450,7 @@
   <div class="app-header">
     <h1>积分兑换</h1>
     <div class="sub">1积分可兑换2元零花钱，或3分钟电视，或2分钟游戏时间</div>
-    <img class="header-mascot" src="assets/zhoushen-thumbsup.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-thumbsup.png" alt="周深">
   </div>
   <div class="balance-bar">
     <div class="balance-bar-item">
@@ -1483,7 +1475,7 @@
   <div class="app-header">
     <h1>统计</h1>
     <div class="sub">学习数据分析与洞察</div>
-    <img class="header-mascot" src="assets/zhoushen-standing.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-standing.png" alt="周深">
   </div>
   <div class="stats-filter">
     <button class="stats-filter-btn active" data-range="week" onclick="setStatsRange('week')">本周</button>
@@ -1557,7 +1549,7 @@
   <div class="app-header">
     <h1>我的</h1>
     <div class="sub" id="profile-role-name"></div>
-    <img class="header-mascot" src="assets/zhoushen-thumbsup.jpg" alt="周深">
+    <img class="header-mascot" src="assets/zhoushen-thumbsup.png" alt="周深">
   </div>
   <div class="backup-banner" id="backup-banner" style="display:none;">
     <div class="backup-banner-text">
@@ -1577,7 +1569,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.3</span>
+      <span class="text-light" id="app-version">v1.27.4</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4237,8 +4229,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.3';
+const APP_VERSION = 'v1.27.4';
 const CHANGELOG = [
+  { ver: 'v1.27.4', desc: '头部改为带边距圆角渐变卡片，周深人物改为半身大图并向上延伸出头部的设计稿样式', time: '2026-08-26 18:15:00' },
   { ver: 'v1.27.3', desc: '首页、统计、我的、任务管理、兑换、登录等核心页面顶部新增周深形象装饰', time: '2026-08-26 17:55:00' },
   { ver: 'v1.27.2', desc: '任务完成凭证入口改为行内按钮，恢复一键标记完成', time: '2026-08-24 10:00:00' },
   { ver: 'v1.27.1', desc: 'AI 分析设置仅对管理员（妈妈）可见', time: '2026-08-18 15:00:00' },
