@@ -1153,7 +1153,8 @@
     .stats-filter {
       display: flex;
       gap: 8px;
-      padding: 0 16px 12px;
+      margin-top: 16px;
+      padding: 0 16px 0;
     }
     .stats-filter-btn {
       flex: 1;
@@ -1171,6 +1172,13 @@
       background: #E8F0FE;
       color: var(--primary);
       font-weight: 500;
+      border-radius: 8px 8px 0 0;
+      border-bottom-color: transparent;
+      position: relative;
+      z-index: 2;
+    }
+    [data-theme="dark"] .stats-filter-btn.active {
+      background: rgba(107, 155, 255, 0.18);
     }
     .stats-table {
       width: 100%;
@@ -1196,9 +1204,11 @@
     .ai-summary {
       background: linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 100%);
       border-left: 4px solid var(--primary);
-      border-radius: var(--radius);
+      border-radius: 0 0 var(--radius) var(--radius);
       padding: 16px;
-      margin: 0 16px 16px;
+      margin: -1px 16px 16px;
+      position: relative;
+      z-index: 1;
     }
     [data-theme="dark"] .ai-summary {
       background: linear-gradient(135deg, #1A2536 0%, #202B3D 100%);
@@ -1569,7 +1579,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.8</span>
+      <span class="text-light" id="app-version">v1.27.9</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4229,8 +4239,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.8';
+const APP_VERSION = 'v1.27.9';
 const CHANGELOG = [
+  { ver: 'v1.27.9', desc: '统计页筛选 tab 增加上间距，AI 分析版块与选中 tab 视觉连通', time: '2026-08-26 19:20:00' },
   { ver: 'v1.27.8', desc: '精简兑换页文案，调整头部高度使周深图片下边缘与蓝色模块下边缘平齐', time: '2026-08-26 19:10:00' },
   { ver: 'v1.27.7', desc: '调整统计、我的、兑换三页的周深人物形象：统计点赞、我的站立、兑礼物盒', time: '2026-08-26 19:00:00' },
   { ver: 'v1.27.6', desc: '增大头部上方边距，确保周深人物头部完整露出', time: '2026-08-26 18:45:00' },
