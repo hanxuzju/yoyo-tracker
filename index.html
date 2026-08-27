@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>YOYO 学习任务记录</title>
+  <title>YOYO 星光日记</title>
   <style>
     :root {
       --primary: #5B8DEF;
@@ -1326,8 +1326,8 @@
 <!-- ===================== PASSWORD LOGIN PAGE ===================== -->
 <div class="page active" id="page-login">
   <div class="app-header">
-    <h1>YOYO 学习任务记录</h1>
-    <div class="sub">请输入密码进入系统</div>
+    <h1>YOYO 星光日记</h1>
+    <div class="sub">点亮每一天的小星星 ⭐</div>
     <img class="header-mascot" src="assets/zhoushen-waving.png" alt="周深">
   </div>
   <div class="login-container">
@@ -1347,8 +1347,8 @@
 <!-- ===================== ROLE SELECT PAGE ===================== -->
 <div class="page" id="page-role">
   <div class="app-header">
-    <h1>YOYO 学习任务记录</h1>
-    <div class="sub">选择您的身份进入系统</div>
+    <h1>YOYO 星光日记</h1>
+    <div class="sub">选择你的身份开始新的一天 🌟</div>
     <img class="header-mascot" src="assets/zhoushen-waving.png" alt="周深">
   </div>
   <div class="section-title">管理员</div>
@@ -1578,7 +1578,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.27.12</span>
+      <span class="text-light" id="app-version">v1.28.0</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -4238,8 +4238,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.27.12';
+const APP_VERSION = 'v1.28.0';
 const CHANGELOG = [
+  { ver: 'v1.28.0', desc: '应用更名为「YOYO 星光日记」，登录页文案更温暖', time: '2026-08-27 10:00:00' },
   { ver: 'v1.27.12', desc: '统计页未选中 tab 下圆角改为 0，AI 版块上方增加蓝色边框', time: '2026-08-26 19:50:00' },
   { ver: 'v1.27.11', desc: '压缩周深人物图片，登录页加载完成后预加载所有人物素材', time: '2026-08-26 19:40:00' },
   { ver: 'v1.27.10', desc: '统一统计页选中 tab 与 AI 版块的背景和边框，消除分隔感', time: '2026-08-26 19:30:00' },
