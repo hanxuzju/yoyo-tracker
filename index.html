@@ -1578,7 +1578,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.28.0</span>
+      <span class="text-light" id="app-version">v1.29.0</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -1680,7 +1680,6 @@
       <div class="validity-options">
         <div class="validity-option active" data-type="permanent" onclick="setValidityType('permanent')">永久有效</div>
         <div class="validity-option" data-type="shortTerm" onclick="setValidityType('shortTerm')">短期有效</div>
-        <div class="validity-option" data-type="periodic" onclick="setValidityType('periodic')">周期有效</div>
       </div>
       <div class="validity-detail" id="validity-shortTerm">
         <div class="form-group" style="margin-bottom:10px;">
@@ -1692,9 +1691,14 @@
           <input class="form-input" id="task-end" type="date">
         </div>
       </div>
-      <div class="validity-detail" id="validity-periodic">
-        <div class="form-label" style="font-size:0.8125rem; margin-bottom:8px;">选择周期</div>
-        <div class="day-selector" id="periodic-days">
+      <div class="validity-detail active" id="validity-periodic" style="margin-top:12px; padding:12px; background:var(--bg); border-radius:10px;">
+        <div class="notes-toggle-row" style="margin-top:0;">
+          <span style="font-size:0.8125rem;">周期有效（可选）</span>
+          <div class="toggle-switch" id="periodic-toggle" onclick="togglePeriodicSwitch('')">
+            <div class="toggle-switch-track"><div class="toggle-switch-thumb"></div></div>
+          </div>
+        </div>
+        <div class="day-selector" id="periodic-days" style="margin-top:12px; display:none;">
           <div class="day-chip" data-day="1" onclick="toggleDayChip(this)">一</div>
           <div class="day-chip" data-day="2" onclick="toggleDayChip(this)">二</div>
           <div class="day-chip" data-day="3" onclick="toggleDayChip(this)">三</div>
@@ -1752,7 +1756,6 @@
       <div class="validity-options">
         <div class="validity-option" data-type="permanent" id="edit-validity-permanent" onclick="setEditValidityType('permanent')">永久有效</div>
         <div class="validity-option" data-type="shortTerm" id="edit-validity-shortTerm" onclick="setEditValidityType('shortTerm')">短期有效</div>
-        <div class="validity-option" data-type="periodic" id="edit-validity-periodic" onclick="setEditValidityType('periodic')">周期有效</div>
       </div>
       <div class="validity-detail" id="edit-validity-shortTerm-detail">
         <div class="form-group" style="margin-bottom:10px;">
@@ -1764,9 +1767,14 @@
           <input class="form-input" id="edit-task-end" type="date">
         </div>
       </div>
-      <div class="validity-detail" id="edit-validity-periodic-detail">
-        <div class="form-label" style="font-size:0.8125rem; margin-bottom:8px;">选择周期</div>
-        <div class="day-selector" id="edit-periodic-days">
+      <div class="validity-detail" id="edit-validity-periodic-detail" style="margin-top:12px; padding:12px; background:var(--bg); border-radius:10px; display:block;">
+        <div class="notes-toggle-row" style="margin-top:0;">
+          <span style="font-size:0.8125rem;">周期有效（可选）</span>
+          <div class="toggle-switch" id="edit-periodic-toggle" onclick="togglePeriodicSwitch('edit-')">
+            <div class="toggle-switch-track"><div class="toggle-switch-thumb"></div></div>
+          </div>
+        </div>
+        <div class="day-selector" id="edit-periodic-days" style="margin-top:12px; display:none;">
           <div class="day-chip" data-day="1" onclick="toggleEditDayChip(this)">一</div>
           <div class="day-chip" data-day="2" onclick="toggleEditDayChip(this)">二</div>
           <div class="day-chip" data-day="3" onclick="toggleEditDayChip(this)">三</div>
@@ -2106,7 +2114,7 @@ function loadLocalCache() {
       state.checkins = saved.checkins || {};
       state.operationLog = saved.operationLog || [];
       state.tasks.forEach(t => {
-        if (!t.validity) t.validity = { type: 'permanent' };
+        migrateTaskValidity(t);
         if (!t.notes) t.notes = { enabled: false, items: [] };
         if (!t.updatedAt) t.updatedAt = t.createdAt || now();
         if (!t.category) t.category = 'other';
@@ -2142,7 +2150,7 @@ async function loadFromSupabase() {
       state.checkins = mergeCheckins(state.checkins, saved.checkins || {});
       state.operationLog = mergeOperationLogs(state.operationLog || [], saved.operationLog || []);
       state.tasks.forEach(t => {
-        if (!t.validity) t.validity = { type: 'permanent' };
+        migrateTaskValidity(t);
         if (!t.notes) t.notes = { enabled: false, items: [] };
         if (!t.updatedAt) t.updatedAt = t.createdAt || now();
         if (!t.category) t.category = 'other';
@@ -2324,12 +2332,12 @@ function initDemoData() {
   if (state.tasks.length === 0 && (cloudDataStatus === 'empty' || cloudDataStatus === 'error')) {
     const ts = now();
     state.tasks = [
-      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: ts, updatedAt: ts, category: 'study', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
-      { id: genId(), name: '数学练习', points: 5, createdAt: ts, updatedAt: ts, category: 'study', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
-      { id: genId(), name: '练字', points: 3, createdAt: ts, updatedAt: ts, category: 'art', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
-      { id: genId(), name: '阅读课外书', points: 5, createdAt: ts, updatedAt: ts, category: 'reading', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } },
-      { id: genId(), name: '体育运动', points: 3, createdAt: ts, updatedAt: ts, category: 'sport', validity: { type: 'periodic', days: [1,2,3,4,5,6,7] }, notes: { enabled: false, items: [] } },
-      { id: genId(), name: '整理书包/房间', points: 2, createdAt: ts, updatedAt: ts, category: 'housework', validity: { type: 'permanent' }, notes: { enabled: false, items: [] } }
+      { id: genId(), name: '晨读（语文/英语）', points: 5, createdAt: ts, updatedAt: ts, category: 'study', validity: { type: 'permanent', periodic: { enabled: false } }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '数学练习', points: 5, createdAt: ts, updatedAt: ts, category: 'study', validity: { type: 'permanent', periodic: { enabled: false } }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '练字', points: 3, createdAt: ts, updatedAt: ts, category: 'art', validity: { type: 'permanent', periodic: { enabled: false } }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '阅读课外书', points: 5, createdAt: ts, updatedAt: ts, category: 'reading', validity: { type: 'permanent', periodic: { enabled: false } }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '体育运动', points: 3, createdAt: ts, updatedAt: ts, category: 'sport', validity: { type: 'permanent', periodic: { enabled: true, days: [1,2,3,4,5,6,7] } }, notes: { enabled: false, items: [] } },
+      { id: genId(), name: '整理书包/房间', points: 2, createdAt: ts, updatedAt: ts, category: 'housework', validity: { type: 'permanent', periodic: { enabled: false } }, notes: { enabled: false, items: [] } }
     ];
     saveData();
   }
@@ -2371,7 +2379,7 @@ function setupRealtime() {
         state.checkins = mergeCheckins(state.checkins, saved.checkins || {});
         state.operationLog = mergeOperationLogs(state.operationLog || [], saved.operationLog || []);
         state.tasks.forEach(t => {
-          if (!t.validity) t.validity = { type: 'permanent' };
+          migrateTaskValidity(t);
           if (!t.notes) t.notes = { enabled: false, items: [] };
           if (!t.updatedAt) t.updatedAt = t.createdAt || now();
           if (!t.category) t.category = 'other';
@@ -2469,6 +2477,7 @@ function openModal(id) {
   // Reset add-task validity UI
   if (id === 'modal-add-task') {
     setValidityType('permanent');
+    setPeriodicEnabled('', false);
     document.getElementById('task-start').value = '';
     document.getElementById('task-end').value = '';
     document.querySelectorAll('#periodic-days .day-chip').forEach(c => c.classList.remove('active'));
@@ -2486,37 +2495,78 @@ function openModal(id) {
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 // ===================== VALIDITY HELPERS =====================
-function isTaskValidOnDate(task, dateStr) {
-  if (!task.validity || task.validity.type === 'permanent') return true;
+function migrateTaskValidity(task) {
+  if (!task.validity) task.validity = {};
   const v = task.validity;
-  if (v.type === 'shortTerm') {
-    if (!v.startDate || !v.endDate) return true;
-    return dateStr >= v.startDate && dateStr <= v.endDate;
+
+  // Already new model
+  if (v.periodic && typeof v.periodic === 'object' && typeof v.periodic.enabled === 'boolean') {
+    return;
   }
+
+  // Old model: type='periodic' -> permanent + periodic enabled
   if (v.type === 'periodic') {
-    if (!v.days || v.days.length === 0) return false;
+    task.validity = {
+      type: 'permanent',
+      periodic: { enabled: true, days: (v.days || []).slice().sort((a, b) => a - b) }
+    };
+    return;
+  }
+
+  // Old model: permanent / shortTerm -> keep type + periodic disabled
+  task.validity = {
+    type: v.type === 'shortTerm' ? 'shortTerm' : 'permanent',
+    startDate: v.startDate || undefined,
+    endDate: v.endDate || undefined,
+    periodic: { enabled: false }
+  };
+}
+
+function isTaskValidOnDate(task, dateStr) {
+  const v = task.validity || { type: 'permanent' };
+  let valid = true;
+
+  if (v.type === 'shortTerm') {
+    if (v.startDate && v.endDate) {
+      valid = dateStr >= v.startDate && dateStr <= v.endDate;
+    }
+  }
+
+  if (valid && v.periodic && v.periodic.enabled) {
+    const days = v.periodic.days;
+    if (!days || days.length === 0) return false;
     const d = new Date(dateStr + 'T00:00:00');
     // getDay(): 0=Sunday, we use 1=Monday...7=Sunday
     let day = d.getDay();
     if (day === 0) day = 7;
-    return v.days.includes(day);
+    valid = days.includes(day);
   }
-  return true;
+
+  return valid;
 }
 
 function getValidityLabel(task) {
-  if (!task.validity || task.validity.type === 'permanent') return '永久';
-  const v = task.validity;
+  const v = task.validity || { type: 'permanent' };
+  const parts = [];
+
   if (v.type === 'shortTerm') {
-    if (v.startDate && v.endDate) return `${v.startDate.slice(5)} ~ ${v.endDate.slice(5)}`;
-    return '短期';
+    if (v.startDate && v.endDate) parts.push(`${v.startDate.slice(5)} ~ ${v.endDate.slice(5)}`);
+    else parts.push('短期');
+  } else {
+    parts.push('永久');
   }
-  if (v.type === 'periodic') {
-    if (!v.days || v.days.length === 0) return '周期';
-    const names = ['','一','二','三','四','五','六','日'];
-    return v.days.map(d => names[d]).join('') + '';
+
+  if (v.periodic && v.periodic.enabled) {
+    const days = v.periodic.days;
+    if (days && days.length > 0) {
+      const names = ['','一','二','三','四','五','六','日'];
+      parts.push('周' + days.map(d => names[d]).join(''));
+    } else {
+      parts.push('周期');
+    }
   }
-  return '';
+
+  return parts.join(' · ');
 }
 
 // ===================== TYPEWRITER WELCOME =====================
@@ -3435,6 +3485,8 @@ function openProofViewer(index) {
 // ===================== TASK MANAGEMENT =====================
 let currentValidityType = 'permanent';
 let currentEditValidityType = 'permanent';
+let currentPeriodicEnabled = false;
+let currentEditPeriodicEnabled = false;
 let currentNotesItems = [];
 let currentEditNotesItems = [];
 
@@ -3508,7 +3560,22 @@ function setValidityType(type) {
     el.classList.toggle('active', el.dataset.type === type);
   });
   document.getElementById('validity-shortTerm').classList.toggle('active', type === 'shortTerm');
-  document.getElementById('validity-periodic').classList.toggle('active', type === 'periodic');
+}
+
+function setPeriodicEnabled(prefix, enabled) {
+  if (prefix === '') currentPeriodicEnabled = enabled;
+  else currentEditPeriodicEnabled = enabled;
+
+  const toggleId = prefix === '' ? 'periodic-toggle' : 'edit-periodic-toggle';
+  const daysId = prefix === '' ? 'periodic-days' : 'edit-periodic-days';
+  document.getElementById(toggleId).classList.toggle('active', enabled);
+  document.getElementById(daysId).style.display = enabled ? 'grid' : 'none';
+}
+
+function togglePeriodicSwitch(prefix) {
+  const toggleId = prefix === '' ? 'periodic-toggle' : 'edit-periodic-toggle';
+  const enabled = !document.getElementById(toggleId).classList.contains('active');
+  setPeriodicEnabled(prefix, enabled);
 }
 
 function toggleDayChip(el) {
@@ -3521,7 +3588,6 @@ function setEditValidityType(type) {
     el.classList.toggle('active', el.dataset.type === type);
   });
   document.getElementById('edit-validity-shortTerm-detail').classList.toggle('active', type === 'shortTerm');
-  document.getElementById('edit-validity-periodic-detail').classList.toggle('active', type === 'periodic');
 }
 
 function toggleEditDayChip(el) {
@@ -3530,21 +3596,26 @@ function toggleEditDayChip(el) {
 
 function getValidityFromModal(prefix) {
   const type = prefix === '' ? currentValidityType : currentEditValidityType;
-  if (type === 'permanent') return { type: 'permanent' };
-  if (type === 'shortTerm') {
-    const start = document.getElementById(prefix + 'task-start').value;
-    const end = document.getElementById(prefix + 'task-end').value;
-    return { type: 'shortTerm', startDate: start, endDate: end };
+  const toggleId = prefix === '' ? 'periodic-toggle' : 'edit-periodic-toggle';
+  const periodicEnabled = document.getElementById(toggleId).classList.contains('active');
+
+  let validity = { type: type === 'shortTerm' ? 'shortTerm' : 'permanent' };
+  if (validity.type === 'shortTerm') {
+    validity.startDate = document.getElementById(prefix + 'task-start').value;
+    validity.endDate = document.getElementById(prefix + 'task-end').value;
   }
-  if (type === 'periodic') {
+
+  validity.periodic = { enabled: periodicEnabled };
+  if (periodicEnabled) {
     const containerId = prefix === '' ? 'periodic-days' : 'edit-periodic-days';
     const days = [];
     document.querySelectorAll(`#${containerId} .day-chip.active`).forEach(el => {
       days.push(parseInt(el.dataset.day));
     });
-    return { type: 'periodic', days: days.sort((a, b) => a - b) };
+    validity.periodic.days = days.sort((a, b) => a - b);
   }
-  return { type: 'permanent' };
+
+  return validity;
 }
 
 function renderTaskManage() {
@@ -3596,8 +3667,8 @@ function addTask() {
       showToast('开始日期不能晚于结束日期'); return;
     }
   }
-  if (validity.type === 'periodic' && (!validity.days || validity.days.length === 0)) {
-    showToast('请至少选择一天'); return;
+  if (validity.periodic && validity.periodic.enabled && (!validity.periodic.days || validity.periodic.days.length === 0)) {
+    showToast('开启周期有效后，请至少选择一天'); return;
   }
 
   const notesToggle = document.getElementById('notes-toggle');
@@ -3626,16 +3697,20 @@ function openEditTask(task) {
   document.getElementById('edit-task-name').value = task.name;
   document.getElementById('edit-task-points').value = task.points;
 
-  const v = task.validity || { type: 'permanent' };
-  currentEditValidityType = v.type;
+  const v = task.validity || { type: 'permanent', periodic: { enabled: false } };
+  // Historical type='periodic' is treated as permanent + periodic enabled
+  const firstLevelType = v.type === 'periodic' ? 'permanent' : (v.type || 'permanent');
+  const periodicEnabled = v.type === 'periodic' || !!(v.periodic && v.periodic.enabled);
+  const periodicDays = v.type === 'periodic' ? (v.days || []) : (v.periodic && v.periodic.days ? v.periodic.days : []);
+
+  currentEditValidityType = firstLevelType;
   document.querySelectorAll('#modal-edit-task .validity-option').forEach(el => {
-    el.classList.toggle('active', el.dataset.type === v.type);
+    el.classList.toggle('active', el.dataset.type === firstLevelType);
   });
 
-  document.getElementById('edit-validity-shortTerm-detail').classList.toggle('active', v.type === 'shortTerm');
-  document.getElementById('edit-validity-periodic-detail').classList.toggle('active', v.type === 'periodic');
+  document.getElementById('edit-validity-shortTerm-detail').classList.toggle('active', firstLevelType === 'shortTerm');
 
-  if (v.type === 'shortTerm') {
+  if (firstLevelType === 'shortTerm') {
     document.getElementById('edit-task-start').value = v.startDate || '';
     document.getElementById('edit-task-end').value = v.endDate || '';
   } else {
@@ -3643,9 +3718,10 @@ function openEditTask(task) {
     document.getElementById('edit-task-end').value = '';
   }
 
+  setPeriodicEnabled('edit-', periodicEnabled);
   document.querySelectorAll('#edit-periodic-days .day-chip').forEach(el => {
     const day = parseInt(el.dataset.day);
-    el.classList.toggle('active', v.type === 'periodic' && v.days && v.days.includes(day));
+    el.classList.toggle('active', periodicEnabled && periodicDays.includes(day));
   });
 
   // Load notes config
@@ -3675,8 +3751,8 @@ function saveEditTask() {
       showToast('开始日期不能晚于结束日期'); return;
     }
   }
-  if (validity.type === 'periodic' && (!validity.days || validity.days.length === 0)) {
-    showToast('请至少选择一天'); return;
+  if (validity.periodic && validity.periodic.enabled && (!validity.periodic.days || validity.periodic.days.length === 0)) {
+    showToast('开启周期有效后，请至少选择一天'); return;
   }
 
   const editNotesToggle = document.getElementById('edit-notes-toggle');
@@ -4238,8 +4314,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.28.0';
+const APP_VERSION = 'v1.29.0';
 const CHANGELOG = [
+  { ver: 'v1.29.0', desc: '重构任务有效期：周期有效变为可叠加属性，一级类型仅保留永久/短期有效', time: '2026-08-31 10:00:00' },
   { ver: 'v1.28.0', desc: '应用更名为「YOYO 星光日记」，登录页文案更温暖', time: '2026-08-27 10:00:00' },
   { ver: 'v1.27.12', desc: '统计页未选中 tab 下圆角改为 0，AI 版块上方增加蓝色边框', time: '2026-08-26 19:50:00' },
   { ver: 'v1.27.11', desc: '压缩周深人物图片，登录页加载完成后预加载所有人物素材', time: '2026-08-26 19:40:00' },
