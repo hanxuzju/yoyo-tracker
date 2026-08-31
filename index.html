@@ -769,20 +769,6 @@
       font-weight: 500;
     }
 
-    /* Task category tag */
-    .task-category-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 0.625rem;
-      padding: 1px 5px;
-      border-radius: 4px;
-      margin-left: 6px;
-      font-weight: 500;
-      line-height: 1.2;
-    }
-    .task-category-tag .icon { font-size: 0.75rem; }
-
     /* Category statistics */
     .category-stats-grid {
       display: grid;
@@ -1578,7 +1564,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.29.0</span>
+      <span class="text-light" id="app-version">v1.29.1</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -2415,10 +2401,6 @@ function todayStr() { return fmtDate(new Date()); }
 
 function getRoleById(id) { return ROLES.find(r => r.id === id); }
 function getTaskCategory(id) { return TASK_CATEGORIES.find(c => c.id === id) || TASK_CATEGORIES[TASK_CATEGORIES.length - 1]; }
-function getCategoryBadgeHTML(task) {
-  const cat = getTaskCategory(task.category);
-  return `<span class="task-category-tag" style="background:${cat.color}1A;color:${cat.color};border:1px solid ${cat.color}4D"><span class="icon">${cat.icon}</span>${cat.name}</span>`;
-}
 function isAdmin() { return state.currentRole === 'admin'; }
 function isChild() { return state.currentRole === 'yoyo'; }
 function canCheckinRole() { return isAdmin() || isChild(); }
@@ -3067,7 +3049,6 @@ function showDayDetail(dateStr) {
     const noteTagsHtml = noteLabels.length > 0
       ? `<div class="task-note-tags">${noteLabels.map(n => `<span class="task-note-tag${n.isCustom ? ' tag-custom' : ''}">${n.text}</span>`).join('')}</div>`
       : '';
-    const categoryTag = getCategoryBadgeHTML(task);
     const proofs = rec && rec.proofs ? rec.proofs : [];
     const proofBtnClass = completed && proofs.length > 0 ? 'task-proof-btn uploaded' : 'task-proof-btn';
     const proofBtnText = completed && proofs.length > 0 ? `已上传 ${proofs.length}` : '未上传';
@@ -3082,7 +3063,7 @@ function showDayDetail(dateStr) {
         ${completed ? '&#10003;' : ''}
       </div>
       <div class="task-info">
-        <div class="task-name">${categoryTag}${task.name}</div>
+        <div class="task-name">${task.name}</div>
         <div class="task-meta">${editorInfo}</div>
         ${noteTagsHtml}
       </div>
@@ -3635,12 +3616,10 @@ function renderTaskManage() {
     item.className = 'list-item flex-between';
     item.style.cursor = 'pointer';
     const vLabel = getValidityLabel(task);
-    const categoryTag = getCategoryBadgeHTML(task);
     item.innerHTML = `
       <div style="flex:1; min-width:0;">
         <div class="font-bold" style="display:flex; align-items:center; flex-wrap:wrap;">
           ${task.name}
-          ${categoryTag}
           <span class="task-validity-tag">${vLabel}</span>
           ${task.notes && task.notes.enabled ? '<span class="task-notes-indicator">备注</span>' : ''}
         </div>
@@ -4314,8 +4293,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.29.0';
+const APP_VERSION = 'v1.29.1';
 const CHANGELOG = [
+  { ver: 'v1.29.1', desc: '去除任务清单中的分类标签，减少手机端空间占用', time: '2026-08-31 11:00:00' },
   { ver: 'v1.29.0', desc: '重构任务有效期：周期有效变为可叠加属性，一级类型仅保留永久/短期有效', time: '2026-08-31 10:00:00' },
   { ver: 'v1.28.0', desc: '应用更名为「YOYO 星光日记」，登录页文案更温暖', time: '2026-08-27 10:00:00' },
   { ver: 'v1.27.12', desc: '统计页未选中 tab 下圆角改为 0，AI 版块上方增加蓝色边框', time: '2026-08-26 19:50:00' },
