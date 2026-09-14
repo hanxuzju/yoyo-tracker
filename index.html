@@ -1591,7 +1591,7 @@
     </div>
     <div class="list-item flex-between" onclick="openModal('modal-changelog')">
       <span>当前版本</span>
-      <span class="text-light" id="app-version">v1.30.0</span>
+      <span class="text-light" id="app-version">v1.30.1</span>
     </div>
     <div class="list-item flex-between" onclick="toggleTheme()">
       <span>深色模式</span>
@@ -2854,6 +2854,8 @@ function renderTodayTasks() {
   const today = todayStr();
   const dayRec = state.records[today] || {};
   const tasks = state.tasks.filter(t => isTaskValidOnDate(t, today));
+  // Pin tasks with names starting with "*" to the top
+  tasks.sort((a, b) => (b.name.startsWith('*') ? 1 : 0) - (a.name.startsWith('*') ? 1 : 0));
 
   if (tasks.length === 0) {
     container.innerHTML = '<div class="today-empty">今日暂无任务</div>';
@@ -3055,6 +3057,8 @@ function showDayDetail(dateStr) {
   container.innerHTML = '';
 
   const validTasks = state.tasks.filter(t => isTaskValidOnDate(t, dateStr));
+  // Pin tasks with names starting with "*" to the top
+  validTasks.sort((a, b) => (b.name.startsWith('*') ? 1 : 0) - (a.name.startsWith('*') ? 1 : 0));
 
   validTasks.forEach(task => {
     const rec = (state.records[dateStr] || {})[task.id];
@@ -4386,8 +4390,9 @@ async function generateAiSummary(taskStats, totalPoints, totalCompleted, range) 
 }
 
 // ===================== CHANGELOG =====================
-const APP_VERSION = 'v1.30.0';
+const APP_VERSION = 'v1.30.1';
 const CHANGELOG = [
+  { ver: 'v1.30.1', desc: '任务清单中将任务名称以「*」开头的任务置顶显示', time: '2026-09-14 10:00:00' },
   { ver: 'v1.30.0', desc: '统计页新增「一键生成今日提醒」功能，仅妈妈可见，自动生成并复制微信提醒文案', time: '2026-09-02 10:00:00' },
   { ver: 'v1.29.1', desc: '去除任务清单中的分类标签，减少手机端空间占用', time: '2026-08-31 11:00:00' },
   { ver: 'v1.29.0', desc: '重构任务有效期：周期有效变为可叠加属性，一级类型仅保留永久/短期有效', time: '2026-08-31 10:00:00' },
